@@ -4,6 +4,7 @@
 
 import { useEffect, useState } from "react";
 import { CART_KEY, readStored, SAVED_BOOKS_KEY, STORAGE_SYNC_EVENT } from "../lib/store";
+import { BrandLogo } from "./brand-logo";
 
 export function SectionHeader() {
   const [open, setOpen] = useState(false);
@@ -23,7 +24,7 @@ export function SectionHeader() {
   }, []);
   return (
     <header className="site-header">
-      <a className="brand" href="/" aria-label="SM Literatura, inicio"><span className="brand-symbol">sm</span><span>literatura</span></a>
+      <a className="brand brand-header" href="/" aria-label="SM Literatura, inicio"><BrandLogo /></a>
       <nav className="main-nav" aria-label="Navegación principal">
         <a className="active" href="/seccion">Explorar libros</a><a href="/planes-lectores">Planes lectores</a><a href="/recursos">Recursos</a><a href="/novedades">Novedades</a>
       </nav>

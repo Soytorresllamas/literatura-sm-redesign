@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { BookCover } from "./components/book-cover";
+import { BrandLogo } from "./components/brand-logo";
 import { ageFacets, catalogBooks, themeFacets, type BookRecord } from "./components/book-data";
 import { CART_KEY, readStored, SAVED_BOOKS_KEY, STORAGE_SYNC_EVENT, writeStored } from "./lib/store";
 
@@ -57,10 +58,7 @@ export default function Home() {
   return (
     <main>
       <header className="site-header">
-        <a className="brand" href="#inicio" aria-label="SM Literatura, inicio">
-          <span className="brand-symbol">sm</span>
-          <span>literatura</span>
-        </a>
+        <a className="brand brand-header" href="#inicio" aria-label="SM Literatura, inicio"><BrandLogo /></a>
         <nav className="main-nav" aria-label="Navegación principal">
           <a className="active" href="/seccion">Explorar libros</a>
           <a href="/planes-lectores">Planes lectores</a>
