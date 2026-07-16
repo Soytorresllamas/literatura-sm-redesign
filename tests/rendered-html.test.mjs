@@ -22,6 +22,7 @@ test("server-renders the literature catalog redesign", async () => {
   assert.match(html, /SM Literatura \| Historias para cada momento/);
   assert.match(html, /Encuentra una historia para/);
   assert.match(html, /sm-logo\.png/);
+  assert.ok((html.match(/sm-logo\.png/g) ?? []).length >= 2);
   assert.match(html, /favicon\.png/);
   assert.match(html, /Busca por título, autor o ISBN/);
   assert.match(html, /Historias que abren mundos/);
@@ -31,23 +32,21 @@ test("server-renders the literature catalog redesign", async () => {
   assert.match(html, /Arma tu plan lector/);
   assert.match(html, /Para la escuela/);
   assert.doesNotMatch(html, /Your site is taking shape|Codex is building the first version/);
+  assert.doesNotMatch(html, /href="\/carrito"|Agregar al carrito|Checkout|Confirmar y pagar/);
   assert.ok(html.indexOf("Novedades editoriales") < html.indexOf("Empieza por aquí"));
 });
 
-test("book detail renders extended data while commerce remains gated", async () => {
+test("book detail renders extended data without commerce controls", async () => {
   const response = await render("/libro?slug=casi-medio-ano-edicion-especial-30-aniversario");
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /¡Casi medio año! Edición especial 30 aniversario/);
-  assert.match(html, /La venta en línea está en preparación/);
-  assert.doesNotMatch(html, /Agregar al carrito|detail-price/);
+  assert.match(html, /Guardar en mi lista/);
+  assert.doesNotMatch(html, /venta en línea|Agregar al carrito|Ir al carrito|detail-price|detail-availability/);
 });
 
-test("checkout route exposes the pricing review gate", async () => {
+test("checkout route redirects to the catalog while commerce is hidden", async () => {
   const response = await render("/checkout");
-  assert.equal(response.status, 200);
-  const html = await response.text();
-  assert.match(html, /Checkout en/);
-  assert.match(html, /validando precios, inventario, envío y medios de pago/);
-  assert.doesNotMatch(html, /Confirmar y pagar/);
+  assert.equal(response.status, 307);
+  assert.equal(new URL(response.headers.get("location")).pathname, "/seccion");
 });

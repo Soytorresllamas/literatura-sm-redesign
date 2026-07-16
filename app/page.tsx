@@ -5,7 +5,8 @@ import { BookCover } from "./components/book-cover";
 import { BrandLogo } from "./components/brand-logo";
 import { ageFacets, catalogBooks, newestBooks, themeFacets, type BookRecord } from "./components/book-data";
 import { NoveltyCarousel } from "./components/novelty-carousel";
-import { CART_KEY, readStored, SAVED_BOOKS_KEY, STORAGE_SYNC_EVENT, writeStored } from "./lib/store";
+import { SiteFooter } from "./components/site-footer";
+import { readStored, SAVED_BOOKS_KEY, STORAGE_SYNC_EVENT, writeStored } from "./lib/store";
 
 const books = catalogBooks;
 
@@ -22,11 +23,10 @@ export default function Home() {
   const [theme, setTheme] = useState("Todos");
   const [selected, setSelected] = useState<BookRecord | null>(null);
   const [saved, setSaved] = useState<string[]>(() => readStored<string[]>(SAVED_BOOKS_KEY, []));
-  const [cartCount, setCartCount] = useState(() => readStored<string[]>(CART_KEY, []).length);
   const [visible, setVisible] = useState(12);
 
   useEffect(() => {
-    const sync = () => { setSaved(readStored<string[]>(SAVED_BOOKS_KEY, [])); setCartCount(readStored<string[]>(CART_KEY, []).length); };
+    const sync = () => setSaved(readStored<string[]>(SAVED_BOOKS_KEY, []));
     window.addEventListener("storage", sync);
     window.addEventListener(STORAGE_SYNC_EVENT, sync);
     return () => { window.removeEventListener("storage", sync); window.removeEventListener(STORAGE_SYNC_EVENT, sync); };
@@ -59,7 +59,7 @@ export default function Home() {
   return (
     <main>
       <header className="site-header">
-        <a className="brand brand-header" href="#inicio" aria-label="SM Literatura, inicio"><BrandLogo /></a>
+        <a className="brand brand-header" href="#inicio" aria-label="SM Literatura, inicio"><BrandLogo priority /></a>
         <nav className="main-nav" aria-label="Navegación principal">
           <a className="active" href="/seccion">Explorar libros</a>
           <a href="/planes-lectores">Planes lectores</a>
@@ -69,7 +69,6 @@ export default function Home() {
         <details className="mobile-menu-details"><summary>Menú <span>＋</span></summary><nav aria-label="Navegación móvil"><a href="/seccion">Explorar libros</a><a href="/planes-lectores">Planes lectores</a><a href="/recursos">Recursos</a><a href="/novedades">Novedades</a><a href="/buscar">Buscar</a></nav></details>
         <div className="header-actions">
           <a className="text-button" href="/planes-lectores">Soy docente</a>
-          <a className="cart-link" href="/carrito" aria-label={`Carrito, ${cartCount} ${cartCount === 1 ? "libro" : "libros"}`}>▢ <span>{cartCount}</span></a>
           <a className="save-button" href="/lista" aria-label={`Lista de deseos, ${new Set(saved).size} ${new Set(saved).size === 1 ? "libro" : "libros"}`}>
             ♡ <span>{new Set(saved).size}</span>
           </a>
@@ -139,7 +138,7 @@ export default function Home() {
 
       <section className="resource-section" id="recursos"><div><p className="eyebrow">Para acompañar la lectura</p><h2>Más que un libro.</h2></div><p>Guías, booktrailers, audiolibros y recursos para que cada historia encuentre su momento.</p><a className="arrow-link" href="/recursos">Ver recursos <span>↗</span></a></section>
 
-      <footer className="site-footer"><div className="brand"><span className="brand-symbol">sm</span><span>literatura</span></div><p>Historias para leer el mundo.</p><div className="footer-links"><a href="#inicio">Inicio</a><a href="#explorar">Catálogo</a><a href="#escuela">Docentes</a><a href="#recursos">Contacto</a></div><small>© SM México · Privacidad · Cookies</small></footer>
+      <SiteFooter />
 
       {selected && <div className="modal-backdrop" role="presentation" onClick={() => setSelected(null)}><section className="book-modal" role="dialog" aria-modal="true" aria-label={`Ficha de ${selected.title}`} onClick={(event) => event.stopPropagation()}><button className="modal-close" onClick={() => setSelected(null)} aria-label="Cerrar ficha">×</button><BookCover title={selected.title} author={selected.author} color={selected.color} accent={selected.accent} image={selected.image} large /><div className="modal-copy"><span className="book-tag">{selected.theme} · {selected.series}</span><h2>{selected.title}</h2><p className="modal-author">{selected.author}</p><p>{selected.note || "Consulta la ficha completa para conocer esta historia."}</p><div className="modal-meta"><span><b>Edad</b>{selected.age}</span><span><b>Nivel</b>{selected.level}</span><span><b>Formato</b>{selected.format || "Impreso"}</span></div><a className="dark-button" href={`/libro?slug=${selected.slug}`}>Ver ficha completa <span>↗</span></a></div></section></div>}
     </main>

@@ -1,5 +1,13 @@
 import type { Metadata } from "next";
+import { Source_Serif_4 } from "next/font/google";
 import "./globals.css";
+
+const sourceSerif = Source_Serif_4({
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+  variable: "--font-source-serif",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "SM Literatura | Historias para cada momento",
@@ -27,7 +35,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body>{children}</body>
+      <body className={sourceSerif.variable}>{children}</body>
     </html>
   );
 }
