@@ -1,0 +1,5 @@
+import { ScreenHero, ScreenShell } from "../components/screen-components";
+
+export default function ContactPage() {
+  return <ScreenShell><ScreenHero eyebrow="Estamos para ayudarte" title={<>Hablemos de <em>lectura.</em></>} intro="Escríbenos para resolver dudas sobre libros, recursos, pedidos o planes lectores." /><section className="contact-layout"><div><p className="eyebrow">Canales de atención</p><h2>Cuéntanos cómo<br /><em>podemos ayudar.</em></h2><p className="contact-detail">atencion@sm.com.mx<br />Lunes a viernes · 9:00 a 18:00 h</p></div><form className="contact-form"><label>Nombre<input placeholder="Tu nombre" /></label><label>Correo electrónico<input type="email" placeholder="tu@correo.com" /></label><label>Motivo<select><option>Selecciona un motivo</option><option>Consulta sobre un libro</option><option>Pedido o compra</option><option>Recursos docentes</option></select></label><label>Mensaje<textarea placeholder="Escribe tu mensaje" rows={5} /></label><button className="dark-button" type="button">Enviar mensaje ↗</button></form></section></ScreenShell>;
+}

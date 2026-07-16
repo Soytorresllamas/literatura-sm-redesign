@@ -1,0 +1,7 @@
+import { CatalogCard } from "../components/catalog-card";
+import { sectionBooks } from "../components/book-data";
+import { ScreenHero, ScreenShell } from "../components/screen-components";
+
+export default function CategoryPage() {
+  return <ScreenShell><ScreenHero eyebrow="Colección" title={<>Historias sobre <em>emociones.</em></>} intro="Libros para nombrar lo que sentimos, conversar en familia y abrir espacio a nuevas preguntas." /><section className="section-layout"><aside className="filter-sidebar"><div className="filter-heading"><strong>Filtrar resultados</strong><button>Limpiar</button></div><label className="side-search">⌕<input placeholder="Buscar en categoría" /></label><fieldset><legend>Edad</legend><label><input type="checkbox" /> 0–5 años <span>12</span></label><label><input type="checkbox" /> 6–8 años <span>18</span></label><label><input type="checkbox" /> 9–11 años <span>9</span></label></fieldset><fieldset><legend>Formato</legend><label><input type="checkbox" /> Impreso <span>31</span></label><label><input type="checkbox" /> Ebook <span>5</span></label></fieldset></aside><div className="results-column"><div className="results-toolbar"><p><strong>31</strong> títulos encontrados</p><label>Ordenar <select><option>Recomendados</option><option>Más recientes</option><option>A–Z</option></select></label></div><div className="section-book-grid">{sectionBooks.map((book) => <CatalogCard key={book.title} book={book} buy />)}</div></div></section></ScreenShell>;
+}
