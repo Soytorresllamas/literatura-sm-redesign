@@ -2,8 +2,7 @@
 
 /* eslint-disable @next/next/no-html-link-for-pages */
 
-import { useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { BookCover } from "../components/book-cover";
 import { getBookBySlug } from "../components/book-data";
@@ -12,8 +11,12 @@ import { CART_KEY, readStored, writeStored } from "../lib/store";
 
 export default function BookPage() {
   const [added, setAdded] = useState(false);
-  const searchParams = useSearchParams();
-  const featuredBook = getBookBySlug(searchParams.get("slug"));
+  const [slug, setSlug] = useState<string | null>(null);
+  useEffect(() => {
+    const timer = window.setTimeout(() => setSlug(new URLSearchParams(window.location.search).get("slug")), 0);
+    return () => window.clearTimeout(timer);
+  }, []);
+  const featuredBook = getBookBySlug(slug);
   function addToCart() {
     const current = readStored<string[]>(CART_KEY, []);
     writeStored(CART_KEY, [...current, featuredBook.slug]);
