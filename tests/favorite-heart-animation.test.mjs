@@ -64,3 +64,19 @@ test("inactive favorites show the outline fallback while hiding the animated ren
   assert.match(componentSource, /ready && active \? "is-hidden" : ""/);
   assert.match(stylesheetSource, /\.favorite-heart:not\(\.is-active\) \.favorite-heart-lottie\s*\{[^}]*opacity:\s*0/);
 });
+
+test("filled and outlined hearts use the same smooth symmetric Bezier silhouette", () => {
+  const expectedGeometry = {
+    i: [[7, -8], [0, 23], [-13, 0], [-1, -7], [-7, 0], [0, -15]],
+    o: [[-7, -8], [0, -15], [7, 0], [1, -7], [13, 0], [0, 23]],
+    v: [[50, 88], [15, 40], [38, 16], [50, 27], [62, 16], [85, 40]],
+    c: true,
+  };
+  const heartLayers = animation.layers.filter((layer) => layer.nm.startsWith("Corazón"));
+
+  assert.equal(heartLayers.length, 2);
+  for (const layer of heartLayers) {
+    const shape = layer.shapes.find((item) => item.ty === "sh");
+    assert.deepEqual(shape.ks.k, expectedGeometry, `${layer.nm} must render a clean heart silhouette`);
+  }
+});
