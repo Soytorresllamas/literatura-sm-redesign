@@ -2,25 +2,59 @@
 
 /* eslint-disable @next/next/no-html-link-for-pages */
 
-import { useEffect, useState } from "react";
-
+import { useEffect, useMemo, useState } from "react";
 import { BookCover } from "../components/book-cover";
-import { getBookBySlug } from "../components/book-data";
+import { getRelatedBooks } from "../components/book-data";
+import { getDetailedBookBySlug } from "../components/book-detail-data";
 import { SectionHeader } from "../components/section-header";
-import { CART_KEY, readStored, writeStored } from "../lib/store";
+import { SiteFooter } from "../components/site-footer";
+import { CART_KEY, readStored, SAVED_BOOKS_KEY, STORAGE_SYNC_EVENT, writeStored } from "../lib/store";
+import { commerceEnabled } from "../lib/commerce";
 
 export default function BookPage() {
-  const [added, setAdded] = useState(false);
   const [slug, setSlug] = useState<string | null>(null);
+  const [added, setAdded] = useState(false);
+  const [saved, setSaved] = useState(false);
   useEffect(() => {
     const timer = window.setTimeout(() => setSlug(new URLSearchParams(window.location.search).get("slug")), 0);
     return () => window.clearTimeout(timer);
   }, []);
-  const featuredBook = getBookBySlug(slug);
+  const book = getDetailedBookBySlug(slug);
+  const related = useMemo(() => getRelatedBooks(book), [book]);
+  const resources = [
+    { label: "Booktrailer", description: "Conoce la historia en video", icon: "▶", href: book.links.bookTrailer },
+    { label: "Audiolibro", description: "Escucha una muestra o la edición disponible", icon: "◉", href: book.links.audiobook },
+    { label: "Podcast", description: "Conversaciones alrededor del libro", icon: "◎", href: book.links.podcast },
+    { label: "Ebook", description: "Consulta la edición digital", icon: "↗", href: book.links.amazonEbook },
+  ].filter((resource) => resource.href);
+
+  useEffect(() => {
+    const sync = () => {
+      const values = readStored<string[]>(SAVED_BOOKS_KEY, []);
+      setSaved(values.includes(book.slug) || values.includes(book.title));
+    };
+    sync();
+    window.addEventListener("storage", sync);
+    window.addEventListener(STORAGE_SYNC_EVENT, sync);
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener(STORAGE_SYNC_EVENT, sync);
+    };
+  }, [book]);
+
   function addToCart() {
-    const current = readStored<string[]>(CART_KEY, []);
-    writeStored(CART_KEY, [...current, featuredBook.slug]);
+    if (!commerceEnabled) return;
+    writeStored(CART_KEY, [...readStored<string[]>(CART_KEY, []), book.slug]);
     setAdded(true);
   }
-  return <main><SectionHeader /><div className="book-breadcrumbs"><a href="/">Inicio</a><span>/</span><a href="/seccion">Explorar libros</a><span>/</span><strong>{featuredBook.title}</strong></div><section className="book-detail"><div className="detail-visual"><span className="detail-label">Novedad</span><BookCover title={featuredBook.title} author={featuredBook.author} color={featuredBook.color} accent={featuredBook.accent} image={featuredBook.image} large /><div className="detail-share">Compartir <button aria-label="Compartir en redes">↗</button></div></div><div className="detail-copy"><p className="eyebrow">{featuredBook.series} · {featuredBook.age}</p><h1>{featuredBook.title}</h1><p className="detail-author">{featuredBook.author}</p><p className="detail-description">{featuredBook.description}</p><div className="detail-price">${featuredBook.price?.toFixed(2)} <small>MXN · Impreso</small></div><div className="detail-actions"><button className="primary-action" onClick={addToCart}>{added ? "Agregado al carrito" : "Agregar al carrito"} <span>↗</span></button><a className="outline-action" href="/carrito">Ir al carrito</a><button className="outline-action">♡ <span>Guardar en mi lista</span></button></div><div className="detail-tags"><span>{featuredBook.age}</span><span>{featuredBook.school}</span><span>{featuredBook.level}</span><span>{featuredBook.theme.split(" · ")[0]}</span></div></div></section><section className="book-info-section"><div className="book-info-intro"><p className="eyebrow">Conoce el libro</p><h2>Una lectura para<br /><em>crecer juntos.</em></h2></div><div className="book-info-grid"><div><h3>Sobre la historia</h3><p>Una novela gráfica cercana y divertida sobre la escuela, la familia, la amistad y esos meses en los que todo parece cambiar.</p><a href="/recursos">Ver recursos de lectura ↗</a></div><div><h3>Datos editoriales</h3><dl><dt>Autor</dt><dd>{featuredBook.author}</dd><dt>Ilustrador</dt><dd>{featuredBook.illustrator}</dd><dt>ISBN</dt><dd>9786072454736</dd><dt>Páginas</dt><dd>160</dd></dl></div><div><h3>Recursos disponibles</h3><ul className="resource-list"><li><span>▶</span><strong>Booktrailer</strong><small>Conoce la historia en 60 segundos</small></li><li><span>↓</span><strong>Ficha de lectura</strong><small>Material para acompañar la conversación</small></li><li><span>◉</span><strong>Podcast</strong><small>Una charla con la autora</small></li></ul></div></div></section><section className="related-section"><div className="section-heading"><div><p className="eyebrow">También puede gustarte</p><h2>Más historias para 9+</h2></div><a className="arrow-link" href="/seccion">Ver catálogo <span>↗</span></a></div><div className="related-books"><div className="related-item"><a href="/libro?slug=xocolatl"><BookCover title="Xocolátl" color="#9c6bba" accent="#f7ce5b" image={getBookBySlug("xocolatl").image} /></a><strong>Xocolátl</strong><span>Enrique Escalona</span></div><div className="related-item"><a href="/libro?slug=grimorio"><BookCover title="Grimorio" color="#24566a" accent="#efb04d" image={getBookBySlug("grimorio").image} /></a><strong>Grimorio</strong><span>Ana Romero</span></div><div className="related-item"><BookCover title="Trío Malafama" color="#ef7365" accent="#fff2cf" /><strong>Trío Malafama</strong><span>Verónica Murguía</span></div></div></section><footer className="site-footer"><div className="brand"><span className="brand-symbol">sm</span><span>Historias para leer el mundo.</span></div><p>Compra segura y recursos para acompañar cada lectura.</p><div className="footer-links"><a href="/">Inicio</a><a href="/seccion">Catálogo</a><a href="/planes-lectores">Docentes</a><a href="/contacto">Contacto</a></div><small>© SM México · Privacidad · Cookies</small></footer></main>;
+
+  function toggleSave() {
+    const current = readStored<string[]>(SAVED_BOOKS_KEY, []);
+    const exists = current.includes(book.slug) || current.includes(book.title);
+    writeStored(SAVED_BOOKS_KEY, exists
+      ? current.filter((item) => item !== book.slug && item !== book.title)
+      : [...current, book.slug]);
+  }
+
+  return <main><SectionHeader /><div className="book-breadcrumbs"><a href="/">Inicio</a><span>/</span><a href="/seccion">Explorar libros</a><span>/</span><strong>{book.title}</strong></div><section className="book-detail"><div className="detail-visual">{book.novelty && <span className="detail-label">Novedad</span>}<BookCover title={book.title} author={book.author} color={book.color} accent={book.accent} image={book.image} large /><div className="detail-share">Compartir <button aria-label="Copiar enlace" onClick={() => navigator.clipboard?.writeText(window.location.href)}>↗</button></div></div><div className="detail-copy"><p className="eyebrow">{book.series} · {book.age}</p><h1>{book.title}</h1><p className="detail-author"><a href={`/autor?nombre=${encodeURIComponent(book.author)}`}>{book.author}</a></p><p className="detail-description">{book.description || book.note || "Consulta la ficha editorial de este título y descubre su propuesta de lectura."}</p>{commerceEnabled && book.price != null ? <div className="detail-price">${book.price.toFixed(2)} <small>MXN · {book.format || "Impreso"}</small></div> : <p className="detail-availability">La venta en línea está en preparación. Consulta disponibilidad con SM México.</p>}<div className="detail-actions">{commerceEnabled && book.price != null && <button className="primary-action" onClick={addToCart}>{added ? "Agregado al carrito" : "Agregar al carrito"} <span>↗</span></button>}{commerceEnabled && book.price != null && <a className="outline-action" href="/carrito">Ir al carrito</a>}<button className="outline-action" onClick={toggleSave}>{saved ? "♥ Guardado" : "♡ Guardar en mi lista"}</button></div><div className="detail-tags"><span>{book.age}</span>{book.school && <span>{book.school}</span>}<span>{book.level}</span><span>{book.theme}</span></div></div></section><section className="book-info-section"><div className="book-info-intro"><p className="eyebrow">Conoce el libro</p><h2>Una lectura para<br /><em>crecer juntos.</em></h2></div><div className="book-info-grid"><div><h3>Sobre la historia</h3><p>{book.note || book.description || "Una propuesta de Literatura SM para acompañar el encuentro entre lectores e historias."}</p></div><div><h3>Datos editoriales</h3><dl><dt>Autor</dt><dd>{book.author}</dd>{book.illustrator && <><dt>Ilustrador</dt><dd>{book.illustrator}</dd></>}<dt>ISBN</dt><dd>{book.isbn || "Por confirmar"}</dd><dt>Páginas</dt><dd>{book.pages || "Por confirmar"}</dd>{book.format && <><dt>Formato</dt><dd>{book.format}</dd></>}{book.binding && <><dt>Encuadernación</dt><dd>{book.binding}</dd></>}</dl></div><div><h3>Recursos disponibles</h3>{resources.length ? <ul className="resource-list">{resources.map((resource) => <li key={resource.label}><span>{resource.icon}</span><a href={resource.href || "#"} target="_blank" rel="noreferrer"><strong>{resource.label}</strong><small>{resource.description}</small></a></li>)}</ul> : <p>Los recursos complementarios se publicarán en esta ficha cuando estén disponibles.</p>}</div></div></section><section className="related-section"><div className="section-heading"><div><p className="eyebrow">También puede gustarte</p><h2>Más historias para {book.ageGroup}</h2></div><a className="arrow-link" href="/seccion">Ver catálogo <span>↗</span></a></div><div className="related-books">{related.map((item) => <div className="related-item" key={item.slug}><a href={`/libro?slug=${item.slug}`}><BookCover title={item.title} author={item.author} color={item.color} accent={item.accent} image={item.image} /></a><strong>{item.title}</strong><span>{item.author}</span></div>)}</div></section><SiteFooter /></main>;
 }

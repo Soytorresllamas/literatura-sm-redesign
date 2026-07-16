@@ -36,7 +36,15 @@ yarn-error.log*
 
 # typescript
 next-env.d.ts
+*.tsbuildinfo
 /dist/
 /.wrangler/
 /outputs/
 /work/
+
+# private WordPress exports and commercial review artifacts
+/data/wordpress/books.raw.csv
+/data/wordpress/books.json
+/data/wordpress/catalog-summary.json
+/data/catalog/pricing-audit.json
+/data/catalog/PRICING_AUDIT.md

@@ -1,14 +1,44 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { BookCover } from "./book-cover";
-import { CART_KEY, readStored, writeStored } from "../lib/store";
+import type { BookRecord } from "./book-data";
+import { commerceEnabled } from "../lib/commerce";
+import { CART_KEY, readStored, SAVED_BOOKS_KEY, STORAGE_SYNC_EVENT, writeStored } from "../lib/store";
 
-type CatalogBook = { slug: string; title: string; author: string; age: string; level: string; theme: string; color: string; accent: string; image?: string };
+function isSaved(values: string[], book: BookRecord) {
+  return values.includes(book.slug) || values.includes(book.title);
+}
 
-export function CatalogCard({ book, buy = false }: { book: CatalogBook; buy?: boolean }) {
+export function CatalogCard({ book, buy = false }: { book: BookRecord; buy?: boolean }) {
+  const [saved, setSaved] = useState(() => isSaved(readStored<string[]>(SAVED_BOOKS_KEY, []), book));
+
+  useEffect(() => {
+    const sync = () => setSaved(isSaved(readStored<string[]>(SAVED_BOOKS_KEY, []), book));
+    window.addEventListener("storage", sync);
+    window.addEventListener(STORAGE_SYNC_EVENT, sync);
+    return () => {
+      window.removeEventListener("storage", sync);
+      window.removeEventListener(STORAGE_SYNC_EVENT, sync);
+    };
+  }, [book]);
+
+  function toggleSave() {
+    const current = readStored<string[]>(SAVED_BOOKS_KEY, []);
+    const next = isSaved(current, book)
+      ? current.filter((item) => item !== book.slug && item !== book.title)
+      : [...current, book.slug];
+    writeStored(SAVED_BOOKS_KEY, [...new Set(next)]);
+  }
+
+  function addToCart() {
+    const current = readStored<string[]>(CART_KEY, []);
+    writeStored(CART_KEY, [...current, book.slug]);
+  }
+
   return <article className="book-card">
-    <button className="card-save" aria-label={`Guardar ${book.title}`}>♡</button>
+    <button className="card-save" onClick={toggleSave} aria-label={`${saved ? "Quitar" : "Guardar"} ${book.title}`}>{saved ? "♥" : "♡"}</button>
     <a href={`/libro?slug=${book.slug}`} className="card-main-link"><span className="book-click"><BookCover title={book.title} author={book.author} color={book.color} accent={book.accent} image={book.image} /></span><span className="book-card-info"><span className="book-tag">{book.theme}</span><span className="book-card-title">{book.title}</span><span className="book-card-author">{book.author}</span><span className="book-meta"><span>{book.age}</span><span>{book.level}</span></span><span className="card-detail-link">Ver ficha <span>↗</span></span></span></a>
-    {buy && <button className="mini-buy" onClick={() => writeStored(CART_KEY, [...readStored<string[]>(CART_KEY, []), book.slug])}>Agregar al carrito</button>}
+    {buy && commerceEnabled && book.price != null && <button className="mini-buy" onClick={addToCart}>Agregar al carrito · ${book.price.toFixed(2)}</button>}
   </article>;
 }

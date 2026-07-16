@@ -2,13 +2,17 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { BookCover } from "./components/book-cover";
-import { catalogBooks, type BookRecord } from "./components/book-data";
-import { CART_KEY, readStored, SAVED_BOOKS_KEY, writeStored } from "./lib/store";
+import { ageFacets, catalogBooks, themeFacets, type BookRecord } from "./components/book-data";
+import { CART_KEY, readStored, SAVED_BOOKS_KEY, STORAGE_SYNC_EVENT, writeStored } from "./lib/store";
 
 const books = catalogBooks;
 
-const ages = ["Todas", "0–5", "6–8", "9–11", "12–14", "Bachillerato"];
-const themes = ["Aventura", "Emociones", "Fantasía", "Identidad", "Imaginación", "Misterio"];
+const ages = ["Todas", ...ageFacets.map((item) => item.name).filter((item) => item !== "Todas")];
+const themes = themeFacets.slice(0, 12).map((item) => item.name);
+
+function hasSaved(values: string[], book: BookRecord) {
+  return values.includes(book.slug) || values.includes(book.title);
+}
 
 export default function Home() {
   const [query, setQuery] = useState("");
@@ -17,11 +21,13 @@ export default function Home() {
   const [selected, setSelected] = useState<BookRecord | null>(null);
   const [saved, setSaved] = useState<string[]>(() => readStored<string[]>(SAVED_BOOKS_KEY, []));
   const [cartCount, setCartCount] = useState(() => readStored<string[]>(CART_KEY, []).length);
+  const [visible, setVisible] = useState(12);
 
   useEffect(() => {
     const sync = () => { setSaved(readStored<string[]>(SAVED_BOOKS_KEY, [])); setCartCount(readStored<string[]>(CART_KEY, []).length); };
     window.addEventListener("storage", sync);
-    return () => window.removeEventListener("storage", sync);
+    window.addEventListener(STORAGE_SYNC_EVENT, sync);
+    return () => { window.removeEventListener("storage", sync); window.removeEventListener(STORAGE_SYNC_EVENT, sync); };
   }, []);
 
   useEffect(() => {
@@ -32,15 +38,17 @@ export default function Home() {
   }, [selected]);
 
   const filteredBooks = useMemo(() => books.filter((book) => {
-    const matchesQuery = `${book.title} ${book.author} ${book.series}`.toLowerCase().includes(query.toLowerCase());
-    const matchesAge = age === "Todas" || book.age === age || (age === "9–11" && book.age === "9+") || (age === "6–8" && book.age === "6+");
-    const matchesTheme = theme === "Todos" || book.theme === theme;
+    const matchesQuery = book.searchText.includes(query.toLowerCase());
+    const matchesAge = age === "Todas" || book.ageGroup === age;
+    const matchesTheme = theme === "Todos" || book.theme === theme || book.themes.includes(theme);
     return matchesQuery && matchesAge && matchesTheme;
   }), [age, query, theme]);
 
-  function toggleSave(title: string) {
+  function toggleSave(book: BookRecord) {
     setSaved((current) => {
-      const next = current.includes(title) ? current.filter((item) => item !== title) : [...current, title];
+      const next = hasSaved(current, book)
+        ? current.filter((item) => item !== book.slug && item !== book.title)
+        : [...current, book.slug];
       writeStored(SAVED_BOOKS_KEY, next);
       return next;
     });
@@ -62,9 +70,9 @@ export default function Home() {
         <details className="mobile-menu-details"><summary>Menú <span>＋</span></summary><nav aria-label="Navegación móvil"><a href="/seccion">Explorar libros</a><a href="/planes-lectores">Planes lectores</a><a href="/recursos">Recursos</a><a href="/novedades">Novedades</a><a href="/buscar">Buscar</a></nav></details>
         <div className="header-actions">
           <a className="text-button" href="/planes-lectores">Soy docente</a>
-          <a className="cart-link" href="/carrito" aria-label={`Carrito, ${cartCount} libros`}>▢ <span>{cartCount}</span></a>
-          <a className="save-button" href="/lista" aria-label={`Lista de deseos, ${saved.length} libros`}>
-            ♡ <span>{saved.length}</span>
+          <a className="cart-link" href="/carrito" aria-label={`Carrito, ${cartCount} ${cartCount === 1 ? "libro" : "libros"}`}>▢ <span>{cartCount}</span></a>
+          <a className="save-button" href="/lista" aria-label={`Lista de deseos, ${new Set(saved).size} ${new Set(saved).size === 1 ? "libro" : "libros"}`}>
+            ♡ <span>{new Set(saved).size}</span>
           </a>
         </div>
       </header>
@@ -76,7 +84,7 @@ export default function Home() {
           <p className="hero-intro">Libros para descubrir, conversar y leer juntos en casa o en la escuela.</p>
           <div className="hero-search">
             <span aria-hidden="true">⌕</span>
-            <input value={query} onChange={(event) => setQuery(event.target.value)} onKeyDown={(event) => { if (event.key === "Enter") window.location.href = `/buscar?q=${encodeURIComponent(query)}`; }} placeholder="Busca por título, autor o ISBN" aria-label="Buscar libros" />
+            <input value={query} onChange={(event) => { setQuery(event.target.value); setVisible(12); }} onKeyDown={(event) => { if (event.key === "Enter") window.location.href = `/buscar?q=${encodeURIComponent(query)}`; }} placeholder="Busca por título, autor o ISBN" aria-label="Buscar libros" />
             <kbd>⌘ K</kbd>
           </div>
           <div className="hero-links">
@@ -96,9 +104,9 @@ export default function Home() {
       <section className="quick-paths" aria-label="Rutas rápidas">
         <div className="section-label">Empieza por aquí</div>
         <div className="path-grid">
-          <a className="path-card path-coral" href="#explorar"><span className="path-icon">✺</span><span><strong>Para cada edad</strong><small>De primeros lectores a bachillerato</small></span><b>↗</b></a>
-          <a className="path-card path-yellow" href="#explorar"><span className="path-icon">◒</span><span><strong>Por tema</strong><small>Aventura, emociones, misterio y más</small></span><b>↗</b></a>
-          <a className="path-card path-blue" href="#escuela"><span className="path-icon">▦</span><span><strong>Para la escuela</strong><small>Planes lectores y recursos docentes</small></span><b>↗</b></a>
+          <a className="path-card path-coral" href="/seccion"><span className="path-icon">✺</span><span><strong>Para cada edad</strong><small>De primeros lectores a bachillerato</small></span><b>↗</b></a>
+          <a className="path-card path-yellow" href="/categoria?tema=Emociones"><span className="path-icon">◒</span><span><strong>Por tema</strong><small>Aventura, emociones, misterio y más</small></span><b>↗</b></a>
+          <a className="path-card path-blue" href="/planes-lectores"><span className="path-icon">▦</span><span><strong>Para la escuela</strong><small>Planes lectores y recursos docentes</small></span><b>↗</b></a>
         </div>
       </section>
 
@@ -108,16 +116,17 @@ export default function Home() {
           <a className="arrow-link" href="/seccion">Ver todo el catálogo <span>↗</span></a>
         </div>
         <div className="filter-row">
-          <div className="filter-group"><span>Edad</span>{ages.map((item) => <button key={item} className={age === item ? "filter-active" : ""} onClick={() => setAge(item)}>{item}</button>)}</div>
-          <label className="theme-select">Tema <select value={theme} onChange={(event) => setTheme(event.target.value)}><option>Todos</option>{themes.map((item) => <option key={item}>{item}</option>)}</select></label>
+          <div className="filter-group"><span>Edad</span>{ages.map((item) => <button key={item} className={age === item ? "filter-active" : ""} onClick={() => { setAge(item); setVisible(12); }}>{item}</button>)}</div>
+          <label className="theme-select">Tema <select value={theme} onChange={(event) => { setTheme(event.target.value); setVisible(12); }}><option>Todos</option>{themes.map((item) => <option key={item}>{item}</option>)}</select></label>
         </div>
         <div className="catalog-grid">
-          {filteredBooks.map((book) => <article className="book-card" key={book.slug}>
-            <button className="card-save" onClick={() => toggleSave(book.title)} aria-label={`${saved.includes(book.title) ? "Quitar" : "Añadir"} ${book.title} ${saved.includes(book.title) ? "de" : "a"} favoritos`}>{saved.includes(book.title) ? "♥" : "♡"}</button>
+          {filteredBooks.slice(0, visible).map((book) => <article className="book-card" key={book.slug}>
+            <button className="card-save" onClick={() => toggleSave(book)} aria-label={`${hasSaved(saved, book) ? "Quitar" : "Añadir"} ${book.title} ${hasSaved(saved, book) ? "de" : "a"} favoritos`}>{hasSaved(saved, book) ? "♥" : "♡"}</button>
             <button className="book-click" onClick={() => setSelected(book)}><BookCover title={book.title} author={book.author} color={book.color} accent={book.accent} image={book.image} /></button>
             <div className="book-card-info"><span className="book-tag">{book.theme}</span><h3>{book.title}</h3><p>{book.author}</p><div className="book-meta"><span>{book.age}</span><span>{book.level}</span><span>{book.series}</span></div><a className="card-detail-link" href={`/libro?slug=${book.slug}`}>Ver ficha <span>↗</span></a></div>
           </article>)}
         </div>
+        {visible < filteredBooks.length && <div className="load-more-row"><button className="load-more-button" onClick={() => setVisible((current) => current + 12)}>Mostrar más historias</button></div>}
         {filteredBooks.length === 0 && <div className="empty-state">No encontramos libros con esos filtros. Prueba con otra edad o tema.</div>}
       </section>
 
@@ -131,7 +140,7 @@ export default function Home() {
 
       <footer className="site-footer"><div className="brand"><span className="brand-symbol">sm</span><span>literatura</span></div><p>Historias para leer el mundo.</p><div className="footer-links"><a href="#inicio">Inicio</a><a href="#explorar">Catálogo</a><a href="#escuela">Docentes</a><a href="#recursos">Contacto</a></div><small>© SM México · Privacidad · Cookies</small></footer>
 
-      {selected && <div className="modal-backdrop" role="presentation" onClick={() => setSelected(null)}><section className="book-modal" role="dialog" aria-modal="true" aria-label={`Ficha de ${selected.title}`} onClick={(event) => event.stopPropagation()}><button className="modal-close" onClick={() => setSelected(null)} aria-label="Cerrar ficha">×</button><BookCover title={selected.title} author={selected.author} color={selected.color} accent={selected.accent} image={selected.image} large /><div className="modal-copy"><span className="book-tag">{selected.theme} · {selected.series}</span><h2>{selected.title}</h2><p className="modal-author">{selected.author}</p><p>{selected.note}</p><div className="modal-meta"><span><b>Edad</b>{selected.age}</span><span><b>Nivel</b>{selected.level}</span><span><b>Formato</b>Impreso</span></div><a className="dark-button" href={`/libro?slug=${selected.slug}`}>Ver ficha completa <span>↗</span></a></div></section></div>}
+      {selected && <div className="modal-backdrop" role="presentation" onClick={() => setSelected(null)}><section className="book-modal" role="dialog" aria-modal="true" aria-label={`Ficha de ${selected.title}`} onClick={(event) => event.stopPropagation()}><button className="modal-close" onClick={() => setSelected(null)} aria-label="Cerrar ficha">×</button><BookCover title={selected.title} author={selected.author} color={selected.color} accent={selected.accent} image={selected.image} large /><div className="modal-copy"><span className="book-tag">{selected.theme} · {selected.series}</span><h2>{selected.title}</h2><p className="modal-author">{selected.author}</p><p>{selected.note || "Consulta la ficha completa para conocer esta historia."}</p><div className="modal-meta"><span><b>Edad</b>{selected.age}</span><span><b>Nivel</b>{selected.level}</span><span><b>Formato</b>{selected.format || "Impreso"}</span></div><a className="dark-button" href={`/libro?slug=${selected.slug}`}>Ver ficha completa <span>↗</span></a></div></section></div>}
     </main>
   );
 }

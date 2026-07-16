@@ -1,33 +1,103 @@
+import sourceCatalog from "../../data/catalog/catalog-index.json";
+
 export type BookRecord = {
+  id: number;
   slug: string;
   title: string;
   author: string;
-  illustrator?: string;
+  authorNationality?: string;
   age: string;
+  ageGroup: string;
   school?: string;
   level: string;
   series: string;
+  genre: string;
   theme: string;
+  themes: string[];
   color: string;
   accent: string;
   image?: string;
   price?: number;
+  novelty: boolean;
+  featured: boolean;
   note?: string;
-  description?: string;
+  format?: string;
+  searchText: string;
 };
 
-export const catalogBooks: BookRecord[] = [
-  { slug: "casi-medio-ano", title: "¡Casi medio año!", author: "M. B. Brozon", illustrator: "David Espinosa «El Dee»", age: "9+", school: "Primaria", level: "Nivel 3", series: "Trotamundos", theme: "Aventura", color: "#f6b94b", accent: "#145f63", image: "https://literatura.grupo-sm.com.mx/wp-content/uploads/2026/06/416iKU4NpnL._SY445_SX342_ML2_.jpg", price: 249, note: "Una historia sobre crecer, hacer amigos y encontrar la propia voz.", description: "La suerte puso en manos de Santiago el cuaderno donde empezó a escribir este diario. En él cuenta las cosas que vive cualquier niño de su edad: sus travesuras, su primera novia, cómo son los días con su familia y los juegos con sus amigos." },
-  { slug: "chiflagoras", title: "Chiflágoras", author: "Irma Ibarra", age: "6+", level: "Nivel 2", series: "El Barco de Vapor", theme: "Imaginación", color: "#ef6f61", accent: "#f9e6b8", image: "https://literatura.grupo-sm.com.mx/wp-content/uploads/2026/06/228697-Chiflagoras-600x913.webp", price: 199, note: "Palabras juguetonas para leer en voz alta y dejar volar la imaginación." },
-  { slug: "xocolatl", title: "Xocolátl", author: "Enrique Escalona", age: "9+", level: "Nivel 4", series: "Trotamundos", theme: "Identidad", color: "#9c6bba", accent: "#f7ce5b", image: "https://literatura.grupo-sm.com.mx/wp-content/uploads/2026/06/227928-XOCOLATL-600x950.webp", price: 229, note: "Una aventura de identidad, memoria y pertenencia con sabor mexicano." },
-  { slug: "como-se-siente-osito", title: "¿Cómo se siente Osito?", author: "Carles Ballesteros", age: "0–5", level: "Primeros lectores", series: "Álbumes", theme: "Emociones", color: "#7aaed6", accent: "#fff2cf", image: "https://literatura.grupo-sm.com.mx/wp-content/uploads/2025/01/175652-197x300.jpg", price: 179, note: "Una primera conversación sobre las emociones cotidianas." },
-  { slug: "grimorio", title: "Grimorio", author: "Ana Romero", age: "9+", level: "Nivel 4", series: "Loran", theme: "Fantasía", color: "#24566a", accent: "#efb04d", image: "https://literatura.grupo-sm.com.mx/wp-content/uploads/2025/01/196633-189x300.jpg", price: 229, note: "Fórmulas mágicas, secretos y una lectura para conversar en grupo." },
-  { slug: "donde-surgen-las-sombras", title: "Donde surgen las sombras", author: "David Lozano", age: "Bachillerato", level: "Juvenil", series: "Gran Angular", theme: "Misterio", color: "#37334f", accent: "#ed7d70", image: "https://literatura.grupo-sm.com.mx/wp-content/uploads/2025/01/174103-197x300.jpg", price: 249, note: "Suspenso juvenil para lectores que buscan una historia intensa." },
-];
+export type AuthorRecord = {
+  name: string;
+  slug: string;
+  nationality?: string;
+  count: number;
+  bookSlugs: string[];
+};
 
+export const catalogBooks = sourceCatalog as BookRecord[];
 export const sectionBooks = catalogBooks;
-export const featuredBook = { ...catalogBooks[0], title: "¡Casi medio año! Edición especial 30 aniversario", theme: "Aventura · Crecimiento · Escuela", description: catalogBooks[0].description ?? "" };
+export const newestBooks = catalogBooks.filter((book) => book.novelty).sort((a, b) => b.id - a.id);
+export const featuredBook = newestBooks[0] ?? catalogBooks[0];
+
+function countFacet(values: string[]) {
+  const counts = new Map<string, number>();
+  values.filter(Boolean).forEach((value) => counts.set(value, (counts.get(value) ?? 0) + 1));
+  return [...counts.entries()].map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "es"));
+}
+
+export const ageFacets = countFacet(catalogBooks.map((book) => book.ageGroup));
+export const themeFacets = countFacet(catalogBooks.flatMap((book) => book.themes.length ? book.themes : [book.theme]));
+export const levelFacets = countFacet(catalogBooks.map((book) => book.school || book.level));
+
+const authorMap = new Map<string, AuthorRecord>();
+for (const book of catalogBooks) {
+  const current = authorMap.get(book.author);
+  if (current) {
+    current.count += 1;
+    current.bookSlugs.push(book.slug);
+  } else {
+    authorMap.set(book.author, {
+      name: book.author,
+      slug: encodeURIComponent(book.author),
+      nationality: book.authorNationality,
+      count: 1,
+      bookSlugs: [book.slug],
+    });
+  }
+}
+export const catalogAuthors = [...authorMap.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, "es"));
+
+export const catalogStats = {
+  total: catalogBooks.length,
+  authors: catalogAuthors.length,
+  novelties: newestBooks.length,
+};
+
+export function findBookBySlug(slug: string | null | undefined) {
+  if (!slug) return undefined;
+  return catalogBooks.find((book) => book.slug === slug)
+    ?? catalogBooks.find((book) => book.slug.startsWith(`${slug}-`));
+}
 
 export function getBookBySlug(slug: string | null | undefined) {
-  return catalogBooks.find((book) => book.slug === slug) ?? featuredBook;
+  return findBookBySlug(slug) ?? featuredBook;
+}
+
+export function getBooksByAuthor(name: string | null | undefined) {
+  if (!name) return [];
+  return catalogBooks.filter((book) => book.author.localeCompare(name, "es", { sensitivity: "base" }) === 0);
+}
+
+export function getRelatedBooks(book: BookRecord, limit = 3) {
+  return catalogBooks
+    .filter((candidate) => candidate.id !== book.id)
+    .map((candidate) => ({
+      candidate,
+      score: (candidate.series === book.series ? 4 : 0)
+        + (candidate.theme === book.theme ? 3 : 0)
+        + (candidate.ageGroup === book.ageGroup ? 2 : 0)
+        + (candidate.genre === book.genre ? 1 : 0),
+    }))
+    .sort((a, b) => b.score - a.score || b.candidate.id - a.candidate.id)
+    .slice(0, limit)
+    .map(({ candidate }) => candidate);
 }
