@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { BookCover } from "./components/book-cover";
 import { BrandLogo } from "./components/brand-logo";
 import { ageFacets, catalogBooks, newestBooks, themeFacets, type BookRecord } from "./components/book-data";
+import { FavoriteHeart } from "./components/favorite-heart";
 import { NoveltyCarousel } from "./components/novelty-carousel";
 import { SiteFooter } from "./components/site-footer";
 import { readStored, SAVED_BOOKS_KEY, STORAGE_SYNC_EVENT, writeStored } from "./lib/store";
@@ -70,7 +71,8 @@ export default function Home() {
         <div className="header-actions">
           <a className="text-button" href="/planes-lectores">Soy docente</a>
           <a className="save-button" href="/lista" aria-label={`Lista de deseos, ${new Set(saved).size} ${new Set(saved).size === 1 ? "libro" : "libros"}`}>
-            ♡ <span>{new Set(saved).size}</span>
+            <FavoriteHeart active={saved.length > 0} className="favorite-heart-header" />
+            <span className="save-count">{new Set(saved).size}</span>
           </a>
         </div>
       </header>
@@ -121,7 +123,7 @@ export default function Home() {
         </div>
         <div className="catalog-grid">
           {filteredBooks.slice(0, visible).map((book) => <article className="book-card" key={book.slug}>
-            <button className="card-save" onClick={() => toggleSave(book)} aria-label={`${hasSaved(saved, book) ? "Quitar" : "Añadir"} ${book.title} ${hasSaved(saved, book) ? "de" : "a"} favoritos`}>{hasSaved(saved, book) ? "♥" : "♡"}</button>
+            <button className="card-save" onClick={() => toggleSave(book)} aria-label={`${hasSaved(saved, book) ? "Quitar" : "Añadir"} ${book.title} ${hasSaved(saved, book) ? "de" : "a"} favoritos`} aria-pressed={hasSaved(saved, book)}><FavoriteHeart active={hasSaved(saved, book)} /></button>
             <button className="book-click" onClick={() => setSelected(book)}><BookCover title={book.title} author={book.author} color={book.color} accent={book.accent} image={book.image} /></button>
             <div className="book-card-info"><span className="book-tag">{book.theme}</span><h3>{book.title}</h3><p>{book.author}</p><div className="book-meta"><span>{book.age}</span><span>{book.level}</span><span>{book.series}</span></div><a className="card-detail-link" href={`/libro?slug=${book.slug}`}>Ver ficha <span>↗</span></a></div>
           </article>)}
