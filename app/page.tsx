@@ -11,7 +11,12 @@ import { readStored, SAVED_BOOKS_KEY, STORAGE_SYNC_EVENT, writeStored } from "./
 
 const books = catalogBooks;
 
-const ages = ["Todas", ...ageFacets.map((item) => item.name).filter((item) => item !== "Todas")];
+const ageOrder = ["0–5", "6–8", "9–11", "12–14", "Secundaria", "Bachillerato", "Docentes", "Todas las edades"];
+const ages = ["Todas", ...ageFacets.map((item) => item.name).filter((item) => item !== "Todas").sort((a, b) => {
+  const aIndex = ageOrder.indexOf(a);
+  const bIndex = ageOrder.indexOf(b);
+  return (aIndex === -1 ? ageOrder.length : aIndex) - (bIndex === -1 ? ageOrder.length : bIndex) || a.localeCompare(b, "es");
+})];
 const themes = themeFacets.slice(0, 12).map((item) => item.name);
 
 function hasSaved(values: string[], book: BookRecord) {
@@ -117,9 +122,15 @@ export default function Home() {
           <div><p className="eyebrow">Para descubrir hoy</p><h2>Historias que abren mundos</h2></div>
           <a className="arrow-link" href="/seccion">Ver todo el catálogo <span>↗</span></a>
         </div>
-        <div className="filter-row">
-          <div className="filter-group"><span>Edad</span>{ages.map((item) => <button key={item} className={age === item ? "filter-active" : ""} onClick={() => { setAge(item); setVisible(12); }}>{item}</button>)}</div>
-          <label className="theme-select">Tema <select value={theme} onChange={(event) => { setTheme(event.target.value); setVisible(12); }}><option>Todos</option>{themes.map((item) => <option key={item}>{item}</option>)}</select></label>
+        <div className="catalog-filter-panel">
+          <div className="filter-panel-heading">
+            <div><p className="eyebrow">Encuentra más rápido</p><h3>Elige una lectura para cada etapa.</h3></div>
+            <div className="filter-result-count" aria-live="polite"><strong>{filteredBooks.length}</strong><span>{filteredBooks.length === 1 ? "historia disponible" : "historias disponibles"}</span></div>
+          </div>
+          <div className="filter-row">
+            <div className="filter-block"><span className="filter-label">¿Para quién es la lectura?</span><div className="filter-group">{ages.map((item) => <button key={item} className={age === item ? "filter-active" : ""} aria-pressed={age === item} onClick={() => { setAge(item); setVisible(12); }}>{item}</button>)}</div></div>
+            <label className="theme-select"><span className="filter-label">Explora por tema</span><select value={theme} onChange={(event) => { setTheme(event.target.value); setVisible(12); }}><option value="Todos">Todos los temas</option>{themes.map((item) => <option key={item}>{item}</option>)}</select></label>
+          </div>
         </div>
         <div className="catalog-grid">
           {filteredBooks.slice(0, visible).map((book) => <article className="book-card" key={book.slug}>

@@ -26,6 +26,8 @@ test("server-renders the literature catalog redesign", async () => {
   assert.match(html, /favicon\.png/);
   assert.match(html, /Busca por título, autor o ISBN/);
   assert.match(html, /Historias que abren mundos/);
+  assert.match(html, /Elige una lectura para cada etapa/);
+  assert.match(html, /historias disponibles/);
   assert.match(html, /Lo más reciente de Literatura SM/);
   assert.match(html, /Novedades editoriales/);
   assert.match(html, /¡Casi medio año! Edición especial 30 aniversario/);
