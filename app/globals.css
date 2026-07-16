@@ -24,6 +24,7 @@ a { color: inherit; text-decoration: none; }
 .save-button { display: inline-flex; align-items: center; gap: 1px; line-height: 1; }.save-count { min-width: 13px; color: var(--ink); font-size: 11px; text-align: left; }
 .favorite-heart { position: relative; display: inline-grid; place-items: center; width: 40px; height: 40px; flex: 0 0 auto; transform-origin: center; transition: transform .22s ease; }
 .favorite-heart-lottie, .favorite-heart-fallback { position: absolute; inset: 0; display: grid; place-items: center; width: 100%; height: 100%; }
+.favorite-heart:not(.is-active) .favorite-heart-lottie { opacity: 0; }
 .favorite-heart-lottie svg { overflow: visible; }
 .favorite-heart-fallback { color: var(--coral); font-family: Arial, sans-serif; font-size: 25px; line-height: 1; transition: opacity .12s ease; }
 .favorite-heart-fallback.is-hidden { opacity: 0; }

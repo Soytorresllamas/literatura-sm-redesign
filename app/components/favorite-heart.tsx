@@ -29,6 +29,8 @@ export function FavoriteHeart({ active, className = "" }: { active: boolean; cla
         rendererSettings: { progressiveLoad: true },
       });
       animation.setSubframe(false);
+      const settleToCurrentState = () => animation.goToAndStop(activeRef.current ? 44 : 0, true);
+      animation.addEventListener("complete", settleToCurrentState);
       animation.goToAndStop(activeRef.current ? 44 : 0, true);
       animationRef.current = animation;
       setReady(true);
@@ -46,19 +48,24 @@ export function FavoriteHeart({ active, className = "" }: { active: boolean; cla
     if (!animation || previousActiveRef.current === active) return;
     previousActiveRef.current = active;
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      animation.goToAndStop(active ? 44 : 0, true);
+    if (!active) {
+      animation.goToAndStop(0, true);
       return;
     }
 
-    animation.setDirection(active ? 1 : -1);
-    animation.goToAndPlay(active ? 0 : 44, true);
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+      animation.goToAndStop(44, true);
+      return;
+    }
+
+    animation.setDirection(1);
+    animation.goToAndPlay(0, true);
   }, [active, ready]);
 
   return (
     <span className={`favorite-heart ${active ? "is-active" : ""} ${className}`.trim()} data-lottie="favorite-heart" aria-hidden="true">
       <span ref={containerRef} className="favorite-heart-lottie" />
-      <span className={`favorite-heart-fallback ${ready ? "is-hidden" : ""}`}>{active ? "♥" : "♡"}</span>
+      <span className={`favorite-heart-fallback ${ready && active ? "is-hidden" : ""}`}>{active ? "♥" : "♡"}</span>
     </span>
   );
 }
