@@ -23,11 +23,8 @@ a { color: inherit; text-decoration: none; }
 .text-button { font-size: 15px; font-weight: 700; }
 .save-button { display: inline-flex; align-items: center; gap: 1px; line-height: 1; }.save-count { min-width: 13px; color: var(--ink); font-size: 13px; text-align: left; }
 .favorite-heart { position: relative; display: inline-grid; place-items: center; width: 34px; height: 34px; flex: 0 0 auto; transform-origin: center; transition: transform .18s ease; will-change: transform; }
-.favorite-heart-lottie, .favorite-heart-fallback { position: absolute; inset: 0; display: grid; place-items: center; width: 100%; height: 100%; }
-.favorite-heart:not(.is-active) .favorite-heart-lottie { opacity: 0; }
-.favorite-heart-lottie svg { overflow: visible; }
-.favorite-heart-fallback { color: var(--coral); font-family: Arial, sans-serif; font-size: 22px; line-height: 1; }
-.favorite-heart-fallback.is-hidden { opacity: 0; }
+.favorite-heart-icon { display: block; width: 100%; height: 100%; overflow: visible; color: var(--coral); }
+.favorite-heart-icon path { vector-effect: non-scaling-stroke; }
 .favorite-heart-header { width: 28px; height: 28px; }
 .save-button:hover .favorite-heart { transform: scale(1.05); }
 .hero { min-height: 590px; padding: 82px 10vw 78px; display: grid; grid-template-columns: 1fr 0.86fr; gap: 5vw; align-items: center; overflow: hidden; background: var(--paper); }
