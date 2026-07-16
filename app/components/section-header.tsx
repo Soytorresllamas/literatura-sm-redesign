@@ -9,11 +9,12 @@ import { FavoriteHeart } from "./favorite-heart";
 
 export function SectionHeader() {
   const [open, setOpen] = useState(false);
-  const [savedCount, setSavedCount] = useState(() => readStored<string[]>(SAVED_BOOKS_KEY, []).length);
+  const [savedCount, setSavedCount] = useState(0);
   useEffect(() => {
     const sync = () => {
       setSavedCount(new Set(readStored<string[]>(SAVED_BOOKS_KEY, [])).size);
     };
+    sync();
     window.addEventListener("storage", sync);
     window.addEventListener(STORAGE_SYNC_EVENT, sync);
     return () => {

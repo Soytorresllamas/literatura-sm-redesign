@@ -8,10 +8,12 @@ type Props = { title: string; author?: string; color: string; accent: string; im
 
 export function BookCover({ title, author, color, accent, image, large = false }: Props) {
   const [imageFailed, setImageFailed] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const showImage = Boolean(image) && !imageFailed;
   return (
-    <div className={`book-cover ${large ? "book-cover-large" : ""} ${showImage ? "book-cover-real" : ""}`} style={{ background: color } as CSSProperties} aria-label={showImage ? `Portada de ${title}` : `Portada conceptual de ${title}`}>
-      {showImage && <Image className="cover-image" src={image!} alt={`Portada de ${title}`} fill sizes="(max-width: 560px) 92vw, (max-width: 900px) 45vw, 300px" onError={() => setImageFailed(true)} />}
+    <div className={`book-cover ${large ? "book-cover-large" : ""} ${showImage ? "book-cover-real" : ""}`} style={{ background: color } as CSSProperties} aria-label={showImage ? `Portada de ${title}` : `Portada conceptual de ${title}`} aria-busy={showImage && !imageLoaded}>
+      {showImage && !imageLoaded && <span className="skeleton cover-skeleton" aria-hidden="true" />}
+      {showImage && <Image className={`cover-image ${imageLoaded ? "is-loaded" : ""}`} src={image!} alt={`Portada de ${title}`} fill sizes="(max-width: 560px) 92vw, (max-width: 900px) 45vw, 300px" onLoad={() => setImageLoaded(true)} onError={() => setImageFailed(true)} />}
       {!showImage && <>
       <span className="cover-sun" style={{ background: accent }} />
       <span className="cover-mark" style={{ color: accent }}>SM</span>

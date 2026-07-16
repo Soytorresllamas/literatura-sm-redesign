@@ -28,11 +28,12 @@ export default function Home() {
   const [age, setAge] = useState("Todas");
   const [theme, setTheme] = useState("Todos");
   const [selected, setSelected] = useState<BookRecord | null>(null);
-  const [saved, setSaved] = useState<string[]>(() => readStored<string[]>(SAVED_BOOKS_KEY, []));
+  const [saved, setSaved] = useState<string[]>([]);
   const [visible, setVisible] = useState(12);
 
   useEffect(() => {
     const sync = () => setSaved(readStored<string[]>(SAVED_BOOKS_KEY, []));
+    sync();
     window.addEventListener("storage", sync);
     window.addEventListener(STORAGE_SYNC_EVENT, sync);
     return () => { window.removeEventListener("storage", sync); window.removeEventListener(STORAGE_SYNC_EVENT, sync); };

@@ -11,10 +11,11 @@ function isSaved(values: string[], book: BookRecord) {
 }
 
 export function CatalogCard({ book }: { book: BookRecord }) {
-  const [saved, setSaved] = useState(() => isSaved(readStored<string[]>(SAVED_BOOKS_KEY, []), book));
+  const [saved, setSaved] = useState(false);
 
   useEffect(() => {
     const sync = () => setSaved(isSaved(readStored<string[]>(SAVED_BOOKS_KEY, []), book));
+    sync();
     window.addEventListener("storage", sync);
     window.addEventListener(STORAGE_SYNC_EVENT, sync);
     return () => {
