@@ -96,7 +96,7 @@ const catalog = published.map((book) => {
     color: palette[0],
     accent: palette[1],
     image: book.images[0],
-    novelty: book.editorial.novelty,
+    novelty: book.categories.some((category) => /^novedad(?:es)?$/i.test(category)),
     featured: book.featured,
     note,
     format: book.editorial.format,

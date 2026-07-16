@@ -11,6 +11,7 @@ test("optimized catalog assets preserve every published book without duplicating
   assert.deepEqual(new Set(catalog.map((book) => book.slug)), new Set(details.map((book) => book.slug)));
   assert.ok(catalog.every((book) => !("description" in book) && !("links" in book)));
   assert.ok(details.some((book) => book.description?.length > 300));
+  assert.equal(catalog.filter((book) => book.novelty).length, 33);
 });
 
 test("catalog identifiers are unique and required display fields are present", () => {

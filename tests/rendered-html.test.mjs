@@ -25,10 +25,13 @@ test("server-renders the literature catalog redesign", async () => {
   assert.match(html, /favicon\.png/);
   assert.match(html, /Busca por título, autor o ISBN/);
   assert.match(html, /Historias que abren mundos/);
+  assert.match(html, /Lo más reciente de Literatura SM/);
+  assert.match(html, /Novedades editoriales/);
   assert.match(html, /¡Casi medio año! Edición especial 30 aniversario/);
   assert.match(html, /Arma tu plan lector/);
   assert.match(html, /Para la escuela/);
   assert.doesNotMatch(html, /Your site is taking shape|Codex is building the first version/);
+  assert.ok(html.indexOf("Novedades editoriales") < html.indexOf("Empieza por aquí"));
 });
 
 test("book detail renders extended data while commerce remains gated", async () => {

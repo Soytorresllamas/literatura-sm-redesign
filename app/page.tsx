@@ -3,7 +3,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { BookCover } from "./components/book-cover";
 import { BrandLogo } from "./components/brand-logo";
-import { ageFacets, catalogBooks, themeFacets, type BookRecord } from "./components/book-data";
+import { ageFacets, catalogBooks, newestBooks, themeFacets, type BookRecord } from "./components/book-data";
+import { NoveltyCarousel } from "./components/novelty-carousel";
 import { CART_KEY, readStored, SAVED_BOOKS_KEY, STORAGE_SYNC_EVENT, writeStored } from "./lib/store";
 
 const books = catalogBooks;
@@ -98,6 +99,8 @@ export default function Home() {
           <div className="hero-note">Una buena historia<br /><strong>siempre encuentra</strong><br />a su lector.</div>
         </div>
       </section>
+
+      <NoveltyCarousel books={newestBooks} />
 
       <section className="quick-paths" aria-label="Rutas rápidas">
         <div className="section-label">Empieza por aquí</div>
