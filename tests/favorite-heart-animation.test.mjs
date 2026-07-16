@@ -4,6 +4,8 @@ import test from "node:test";
 
 const animation = JSON.parse(await readFile(new URL("../app/components/favorite-heart-animation.json", import.meta.url), "utf8"));
 const componentSource = await readFile(new URL("../app/components/favorite-heart.tsx", import.meta.url), "utf8");
+const catalogCardSource = await readFile(new URL("../app/components/catalog-card.tsx", import.meta.url), "utf8");
+const wishlistSource = await readFile(new URL("../app/lista/page.tsx", import.meta.url), "utf8");
 const stylesheetSource = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
 
 function collectAnimatedProperties(value, path = "animation", found = []) {
@@ -63,6 +65,18 @@ test("removing a favorite returns directly to the clean inactive frame", () => {
 test("inactive favorites show the outline fallback while hiding the animated renderer", () => {
   assert.match(componentSource, /ready && active \? "is-hidden" : ""/);
   assert.match(stylesheetSource, /\.favorite-heart:not\(\.is-active\) \.favorite-heart-lottie\s*\{[^}]*opacity:\s*0/);
+});
+
+test("wishlist cards mount with their known favorite state", () => {
+  assert.match(catalogCardSource, /initiallySaved\s*=\s*false/);
+  assert.match(catalogCardSource, /useState\(initiallySaved\)/);
+  assert.match(wishlistSource, /<CatalogCard[^>]*initiallySaved/);
+});
+
+test("favorite animation uses a compact resting size and subtle hover scale", () => {
+  assert.match(stylesheetSource, /\.favorite-heart\s*\{[^}]*width:\s*34px;[^}]*height:\s*34px/);
+  assert.match(stylesheetSource, /\.favorite-heart-header\s*\{[^}]*width:\s*28px;[^}]*height:\s*28px/);
+  assert.match(stylesheetSource, /\.card-save:hover \.favorite-heart\s*\{[^}]*scale\(1\.05\)/);
 });
 
 test("filled and outlined hearts use the same smooth symmetric Bezier silhouette", () => {

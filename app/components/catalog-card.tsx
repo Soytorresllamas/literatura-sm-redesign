@@ -10,8 +10,8 @@ function isSaved(values: string[], book: BookRecord) {
   return values.includes(book.slug) || values.includes(book.title);
 }
 
-export function CatalogCard({ book }: { book: BookRecord }) {
-  const [saved, setSaved] = useState(false);
+export function CatalogCard({ book, initiallySaved = false }: { book: BookRecord; initiallySaved?: boolean }) {
+  const [saved, setSaved] = useState(initiallySaved);
 
   useEffect(() => {
     const sync = () => setSaved(isSaved(readStored<string[]>(SAVED_BOOKS_KEY, []), book));
