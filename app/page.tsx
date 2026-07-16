@@ -1,95 +1,11 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BookCover } from "./components/book-cover";
+import { catalogBooks, type BookRecord } from "./components/book-data";
+import { CART_KEY, readStored, SAVED_BOOKS_KEY, writeStored } from "./lib/store";
 
-type Book = {
-  title: string;
-  author: string;
-  age: string;
-  level: string;
-  series: string;
-  tag: string;
-  color: string;
-  accent: string;
-  note: string;
-  image?: string;
-};
-
-const books: Book[] = [
-  {
-    title: "¡Casi medio año!",
-    author: "M. B. Brozon",
-    age: "9+",
-    level: "Nivel 3",
-    series: "Trotamundos",
-    tag: "Aventura",
-    color: "#f6b94b",
-    accent: "#145f63",
-    note: "Una historia sobre crecer, hacer amigos y encontrar la propia voz.",
-    image: "https://literatura.grupo-sm.com.mx/wp-content/uploads/2026/06/416iKU4NpnL._SY445_SX342_ML2_.jpg",
-  },
-  {
-    title: "Chiflágoras",
-    author: "Irma Ibarra",
-    age: "6+",
-    level: "Nivel 2",
-    series: "El Barco de Vapor",
-    tag: "Imaginación",
-    color: "#ef6f61",
-    accent: "#f9e6b8",
-    note: "Palabras juguetonas para leer en voz alta y dejar volar la imaginación.",
-    image: "https://literatura.grupo-sm.com.mx/wp-content/uploads/2026/06/228697-Chiflagoras-600x913.webp",
-  },
-  {
-    title: "Xocolátl",
-    author: "Enrique Escalona",
-    age: "9+",
-    level: "Nivel 4",
-    series: "Trotamundos",
-    tag: "Identidad",
-    color: "#9c6bba",
-    accent: "#f7ce5b",
-    note: "Una aventura de identidad, memoria y pertenencia con sabor mexicano.",
-    image: "https://literatura.grupo-sm.com.mx/wp-content/uploads/2026/06/227928-XOCOLATL-600x950.webp",
-  },
-  {
-    title: "¿Cómo se siente Osito?",
-    author: "Carles Ballesteros",
-    age: "0–5",
-    level: "Primeros lectores",
-    series: "Álbumes",
-    tag: "Emociones",
-    color: "#7aaed6",
-    accent: "#fff2cf",
-    note: "Una primera conversación sobre las emociones cotidianas.",
-    image: "https://literatura.grupo-sm.com.mx/wp-content/uploads/2025/01/175652-197x300.jpg",
-  },
-  {
-    title: "Grimorio",
-    author: "Ana Romero",
-    age: "9+",
-    level: "Nivel 4",
-    series: "Loran",
-    tag: "Fantasía",
-    color: "#24566a",
-    accent: "#efb04d",
-    note: "Fórmulas mágicas, secretos y una lectura para conversar en grupo.",
-    image: "https://literatura.grupo-sm.com.mx/wp-content/uploads/2025/01/196633-189x300.jpg",
-  },
-  {
-    title: "Donde surgen las sombras",
-    author: "David Lozano",
-    age: "Bachillerato",
-    level: "Juvenil",
-    series: "Gran Angular",
-    tag: "Misterio",
-    color: "#37334f",
-    accent: "#ed7d70",
-    note: "Suspenso juvenil para lectores que buscan una historia intensa.",
-    image: "https://literatura.grupo-sm.com.mx/wp-content/uploads/2025/01/174103-197x300.jpg",
-  },
-];
+const books = catalogBooks;
 
 const ages = ["Todas", "0–5", "6–8", "9–11", "12–14", "Bachillerato"];
 const themes = ["Aventura", "Emociones", "Fantasía", "Identidad", "Imaginación", "Misterio"];
@@ -98,18 +14,36 @@ export default function Home() {
   const [query, setQuery] = useState("");
   const [age, setAge] = useState("Todas");
   const [theme, setTheme] = useState("Todos");
-  const [selected, setSelected] = useState<Book | null>(null);
-  const [saved, setSaved] = useState<string[]>([]);
+  const [selected, setSelected] = useState<BookRecord | null>(null);
+  const [saved, setSaved] = useState<string[]>(() => readStored<string[]>(SAVED_BOOKS_KEY, []));
+  const [cartCount, setCartCount] = useState(() => readStored<string[]>(CART_KEY, []).length);
+
+  useEffect(() => {
+    const sync = () => { setSaved(readStored<string[]>(SAVED_BOOKS_KEY, [])); setCartCount(readStored<string[]>(CART_KEY, []).length); };
+    window.addEventListener("storage", sync);
+    return () => window.removeEventListener("storage", sync);
+  }, []);
+
+  useEffect(() => {
+    if (!selected) return;
+    const closeOnEscape = (event: KeyboardEvent) => { if (event.key === "Escape") setSelected(null); };
+    window.addEventListener("keydown", closeOnEscape);
+    return () => window.removeEventListener("keydown", closeOnEscape);
+  }, [selected]);
 
   const filteredBooks = useMemo(() => books.filter((book) => {
     const matchesQuery = `${book.title} ${book.author} ${book.series}`.toLowerCase().includes(query.toLowerCase());
     const matchesAge = age === "Todas" || book.age === age || (age === "9–11" && book.age === "9+") || (age === "6–8" && book.age === "6+");
-    const matchesTheme = theme === "Todos" || book.tag === theme;
+    const matchesTheme = theme === "Todos" || book.theme === theme;
     return matchesQuery && matchesAge && matchesTheme;
   }), [age, query, theme]);
 
   function toggleSave(title: string) {
-    setSaved((current) => current.includes(title) ? current.filter((item) => item !== title) : [...current, title]);
+    setSaved((current) => {
+      const next = current.includes(title) ? current.filter((item) => item !== title) : [...current, title];
+      writeStored(SAVED_BOOKS_KEY, next);
+      return next;
+    });
   }
 
   return (
@@ -128,10 +62,10 @@ export default function Home() {
         <details className="mobile-menu-details"><summary>Menú <span>＋</span></summary><nav aria-label="Navegación móvil"><a href="/seccion">Explorar libros</a><a href="/planes-lectores">Planes lectores</a><a href="/recursos">Recursos</a><a href="/novedades">Novedades</a><a href="/buscar">Buscar</a></nav></details>
         <div className="header-actions">
           <a className="text-button" href="/planes-lectores">Soy docente</a>
-          <a className="cart-link" href="/carrito" aria-label="Carrito">▢ <span>0</span></a>
-          <button className="save-button" aria-label={`Lista de deseos, ${saved.length} libros`} onClick={() => alert(`${saved.length} ${saved.length === 1 ? "libro guardado" : "libros guardados"}`)}>
+          <a className="cart-link" href="/carrito" aria-label={`Carrito, ${cartCount} libros`}>▢ <span>{cartCount}</span></a>
+          <a className="save-button" href="/lista" aria-label={`Lista de deseos, ${saved.length} libros`}>
             ♡ <span>{saved.length}</span>
-          </button>
+          </a>
         </div>
       </header>
 
@@ -178,10 +112,10 @@ export default function Home() {
           <label className="theme-select">Tema <select value={theme} onChange={(event) => setTheme(event.target.value)}><option>Todos</option>{themes.map((item) => <option key={item}>{item}</option>)}</select></label>
         </div>
         <div className="catalog-grid">
-          {filteredBooks.map((book) => <article className="book-card" key={book.title}>
+          {filteredBooks.map((book) => <article className="book-card" key={book.slug}>
             <button className="card-save" onClick={() => toggleSave(book.title)} aria-label={`${saved.includes(book.title) ? "Quitar" : "Añadir"} ${book.title} ${saved.includes(book.title) ? "de" : "a"} favoritos`}>{saved.includes(book.title) ? "♥" : "♡"}</button>
             <button className="book-click" onClick={() => setSelected(book)}><BookCover title={book.title} author={book.author} color={book.color} accent={book.accent} image={book.image} /></button>
-            <div className="book-card-info"><span className="book-tag">{book.tag}</span><h3>{book.title}</h3><p>{book.author}</p><div className="book-meta"><span>{book.age}</span><span>{book.level}</span><span>{book.series}</span></div><a className="card-detail-link" href="/libro">Ver ficha <span>↗</span></a></div>
+            <div className="book-card-info"><span className="book-tag">{book.theme}</span><h3>{book.title}</h3><p>{book.author}</p><div className="book-meta"><span>{book.age}</span><span>{book.level}</span><span>{book.series}</span></div><a className="card-detail-link" href={`/libro?slug=${book.slug}`}>Ver ficha <span>↗</span></a></div>
           </article>)}
         </div>
         {filteredBooks.length === 0 && <div className="empty-state">No encontramos libros con esos filtros. Prueba con otra edad o tema.</div>}
@@ -197,7 +131,7 @@ export default function Home() {
 
       <footer className="site-footer"><div className="brand"><span className="brand-symbol">sm</span><span>literatura</span></div><p>Historias para leer el mundo.</p><div className="footer-links"><a href="#inicio">Inicio</a><a href="#explorar">Catálogo</a><a href="#escuela">Docentes</a><a href="#recursos">Contacto</a></div><small>© SM México · Privacidad · Cookies</small></footer>
 
-      {selected && <div className="modal-backdrop" role="presentation" onClick={() => setSelected(null)}><section className="book-modal" role="dialog" aria-modal="true" aria-label={`Ficha de ${selected.title}`} onClick={(event) => event.stopPropagation()}><button className="modal-close" onClick={() => setSelected(null)} aria-label="Cerrar ficha">×</button><BookCover title={selected.title} author={selected.author} color={selected.color} accent={selected.accent} image={selected.image} large /><div className="modal-copy"><span className="book-tag">{selected.tag} · {selected.series}</span><h2>{selected.title}</h2><p className="modal-author">{selected.author}</p><p>{selected.note}</p><div className="modal-meta"><span><b>Edad</b>{selected.age}</span><span><b>Nivel</b>{selected.level}</span><span><b>Formato</b>Impreso</span></div><button className="dark-button" onClick={() => toggleSave(selected.title)}>{saved.includes(selected.title) ? "En tu lista" : "Añadir a mi lista"} <span>{saved.includes(selected.title) ? "♥" : "♡"}</span></button></div></section></div>}
+      {selected && <div className="modal-backdrop" role="presentation" onClick={() => setSelected(null)}><section className="book-modal" role="dialog" aria-modal="true" aria-label={`Ficha de ${selected.title}`} onClick={(event) => event.stopPropagation()}><button className="modal-close" onClick={() => setSelected(null)} aria-label="Cerrar ficha">×</button><BookCover title={selected.title} author={selected.author} color={selected.color} accent={selected.accent} image={selected.image} large /><div className="modal-copy"><span className="book-tag">{selected.theme} · {selected.series}</span><h2>{selected.title}</h2><p className="modal-author">{selected.author}</p><p>{selected.note}</p><div className="modal-meta"><span><b>Edad</b>{selected.age}</span><span><b>Nivel</b>{selected.level}</span><span><b>Formato</b>Impreso</span></div><a className="dark-button" href={`/libro?slug=${selected.slug}`}>Ver ficha completa <span>↗</span></a></div></section></div>}
     </main>
   );
 }

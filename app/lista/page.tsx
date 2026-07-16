@@ -1,7 +1,18 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { CatalogCard } from "../components/catalog-card";
-import { sectionBooks } from "../components/book-data";
+import { catalogBooks } from "../components/book-data";
 import { ScreenHero, ScreenShell } from "../components/screen-components";
+import { SAVED_BOOKS_KEY, readStored } from "../lib/store";
 
 export default function WishlistPage() {
-  return <ScreenShell><ScreenHero eyebrow="Tu biblioteca personal" title={<>Libros para <em>volver.</em></>} intro="Guarda títulos para leer después, compartir con tu equipo o convertir en tu próximo pedido." /><section className="screen-content"><div className="list-toolbar"><p><strong>8</strong> libros guardados</p><button className="outline-action">Compartir lista ↗</button></div><div className="section-book-grid">{sectionBooks.slice(0, 4).map((book) => <CatalogCard key={book.title} book={book} buy />)}</div></section></ScreenShell>;
+  const [saved, setSaved] = useState<string[]>(() => readStored<string[]>(SAVED_BOOKS_KEY, []));
+  useEffect(() => {
+    const sync = () => setSaved(readStored<string[]>(SAVED_BOOKS_KEY, []));
+    window.addEventListener("storage", sync);
+    return () => window.removeEventListener("storage", sync);
+  }, []);
+  const books = catalogBooks.filter((book) => saved.includes(book.title));
+  return <ScreenShell><ScreenHero eyebrow="Tu biblioteca personal" title={<>Libros para <em>volver.</em></>} intro="Guarda títulos para leer después, compartir con tu equipo o convertir en tu próximo pedido." /><section className="screen-content"><div className="list-toolbar"><p><strong>{books.length}</strong> libros guardados</p><button className="outline-action" type="button" onClick={() => navigator.clipboard?.writeText(window.location.href)}>Compartir lista ↗</button></div>{books.length ? <div className="section-book-grid">{books.map((book) => <CatalogCard key={book.slug} book={book} buy />)}</div> : <div className="empty-state">Aún no tienes libros guardados. Explora el catálogo y añade tus próximos descubrimientos.</div>}</section></ScreenShell>;
 }
