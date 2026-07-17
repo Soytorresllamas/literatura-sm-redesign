@@ -30,9 +30,11 @@ test("favorite interactions use shared accessible controls", () => {
 });
 
 test("favorite keyboard activation toggles once and suppresses default navigation", () => {
-  assert.match(favoriteButtonSource, /onKeyDown=/);
-  assert.match(favoriteButtonSource, /event\.key !== "Enter" && event\.key !== " "/);
-  assert.match(favoriteButtonSource, /event\.preventDefault\(\);\s*event\.stopPropagation\(\);\s*if \(!event\.repeat\) toggleFavorite\(book\)/);
+  const keyboardHandler = favoriteButtonSource.match(/onKeyDown=\{\(event\) => \{([\s\S]*?)\}\}\s*onClick=/)?.[1] ?? "";
+  assert.match(keyboardHandler, /event\.key !== "Enter" && event\.key !== " "/);
+  assert.match(keyboardHandler, /event\.preventDefault\(\)/);
+  assert.match(keyboardHandler, /event\.stopPropagation\(\)/);
+  assert.match(keyboardHandler, /if \(!event\.repeat\) toggleFavorite\(book\)/);
 });
 
 test("favorite button has a stable 48px hit target and restrained motion", () => {
