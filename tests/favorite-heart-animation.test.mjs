@@ -3,8 +3,8 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 const componentSource = await readFile(new URL("../app/components/favorite-heart.tsx", import.meta.url), "utf8");
-const catalogCardSource = await readFile(new URL("../app/components/catalog-card.tsx", import.meta.url), "utf8");
-const wishlistSource = await readFile(new URL("../app/lista/page.tsx", import.meta.url), "utf8");
+const favoriteButtonSource = await readFile(new URL("../app/components/favorite-button.tsx", import.meta.url), "utf8").catch(() => "");
+const indicatorSource = await readFile(new URL("../app/components/favorites-indicator.tsx", import.meta.url), "utf8").catch(() => "");
 const stylesheetSource = await readFile(new URL("../app/globals.css", import.meta.url), "utf8");
 const packageJson = JSON.parse(await readFile(new URL("../package.json", import.meta.url), "utf8"));
 
@@ -21,14 +21,16 @@ test("favorite heart switches between outline and filled states", () => {
   assert.match(componentSource, /className=\{`favorite-heart-icon/);
 });
 
-test("wishlist cards mount with their known favorite state", () => {
-  assert.match(catalogCardSource, /initiallySaved\s*=\s*false/);
-  assert.match(catalogCardSource, /useState\(initiallySaved\)/);
-  assert.match(wishlistSource, /<CatalogCard[^>]*initiallySaved/);
+test("favorite interactions use shared accessible controls", () => {
+  assert.match(favoriteButtonSource, /type="button"/);
+  assert.match(favoriteButtonSource, /aria-pressed=\{active\}/);
+  assert.match(favoriteButtonSource, /event\.preventDefault\(\)/);
+  assert.match(favoriteButtonSource, /event\.stopPropagation\(\)/);
+  assert.match(indicatorSource, /useFavorites/);
 });
 
-test("favorite icon keeps a compact size and subtle hover scale", () => {
-  assert.match(stylesheetSource, /\.favorite-heart\s*\{[^}]*width:\s*34px;[^}]*height:\s*34px/);
-  assert.match(stylesheetSource, /\.favorite-heart-header\s*\{[^}]*width:\s*28px;[^}]*height:\s*28px/);
-  assert.match(stylesheetSource, /\.card-save:hover \.favorite-heart\s*\{[^}]*scale\(1\.05\)/);
+test("favorite button has a stable 48px hit target and restrained motion", () => {
+  assert.match(stylesheetSource, /\.favorite-button-card\s*\{[^}]*width:\s*48px;[^}]*height:\s*48px/);
+  assert.match(stylesheetSource, /\.favorite-button-card:hover \.favorite-heart\s*\{[^}]*scale\(1\.04\)/);
+  assert.match(stylesheetSource, /prefers-reduced-motion:\s*reduce/);
 });
