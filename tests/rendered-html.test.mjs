@@ -33,6 +33,8 @@ test("server-renders the literature catalog redesign", async () => {
   assert.match(html, /¡Casi medio año! Edición especial 30 aniversario/);
   assert.match(html, /Arma tu plan lector/);
   assert.match(html, /Para la escuela/);
+  assert.match(html, /Lista de deseos/);
+  assert.match(html, /aria-pressed="false"/);
   assert.match(html, /data-favorite-heart="static"/);
   assert.doesNotMatch(html, /Your site is taking shape|Codex is building the first version/);
   assert.doesNotMatch(html, /href="\/carrito"|Agregar al carrito|Checkout|Confirmar y pagar/);
@@ -45,6 +47,8 @@ test("book detail renders extended data without commerce controls", async () => 
   const html = await response.text();
   assert.match(html, /¡Casi medio año! Edición especial 30 aniversario/);
   assert.match(html, /Guardar en mi lista/);
+  assert.match(html, /Lista de deseos/);
+  assert.match(html, /aria-pressed="false"/);
   assert.match(html, /data-favorite-heart="static"/);
   assert.doesNotMatch(html, /venta en línea|Agregar al carrito|Ir al carrito|detail-price|detail-availability/);
 });
