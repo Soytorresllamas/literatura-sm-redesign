@@ -96,7 +96,7 @@ test("new releases retain their content and follow favorites visibility", async 
 test("checkout route redirects to the catalog while commerce is hidden", async () => {
   const response = await render("/checkout");
   assert.equal(response.status, 307);
-  assert.equal(new URL(response.headers.get("location")).pathname, "/seccion");
+  assert.equal(new URL(response.headers.get("location"), "http://localhost").pathname, "/seccion");
 });
 
 test("account retains its navigation and follows favorites visibility", async () => {
@@ -124,6 +124,6 @@ test("wishlist route follows the configured favorites visibility", async () => {
     assert.equal(response.status, 200);
   } else {
     assert.equal(response.status, 307);
-    assert.equal(new URL(response.headers.get("location")).pathname, "/seccion");
+    assert.equal(new URL(response.headers.get("location"), "http://localhost").pathname, "/seccion");
   }
 });
