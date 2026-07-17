@@ -17,7 +17,7 @@ import {
   removeFavoriteId,
   toggleFavoriteId,
 } from "../lib/favorites-core";
-import { SAVED_BOOKS_KEY, readStored } from "../lib/store";
+import { SAVED_BOOKS_KEY } from "../lib/store";
 
 export type FavoritesContextValue = {
   favoriteIds: readonly string[];
@@ -38,6 +38,23 @@ function persist(ids: readonly string[]) {
   }
 }
 
+function normalizeSerializedFavoriteIds(serialized: string | null) {
+  let raw: unknown = [];
+  if (serialized !== null) {
+    try {
+      raw = JSON.parse(serialized);
+    } catch {
+      raw = [];
+    }
+  }
+
+  const normalized = normalizeFavoriteIds(raw, catalogBooks);
+  return {
+    normalized,
+    needsRepair: serialized !== null && serialized !== JSON.stringify(normalized),
+  };
+}
+
 export function FavoritesProvider({ children }: { children: ReactNode }) {
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
   const [ready, setReady] = useState(false);
@@ -49,21 +66,22 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    const raw = readStored<unknown>(SAVED_BOOKS_KEY, []);
-    const normalized = normalizeFavoriteIds(raw, catalogBooks);
+    let serialized: string | null = null;
+    try {
+      serialized = window.localStorage.getItem(SAVED_BOOKS_KEY);
+    } catch {
+      // Hydration falls back to an empty in-memory list when storage cannot be read.
+    }
+    const { normalized, needsRepair } = normalizeSerializedFavoriteIds(serialized);
     apply(normalized);
-    if (JSON.stringify(raw) !== JSON.stringify(normalized)) persist(normalized);
+    if (needsRepair) persist(normalized);
     setReady(true);
 
     const syncFromAnotherTab = (event: StorageEvent) => {
       if (event.key !== SAVED_BOOKS_KEY) return;
-      let rawValue: unknown = [];
-      try {
-        rawValue = event.newValue ? JSON.parse(event.newValue) : [];
-      } catch {
-        rawValue = [];
-      }
-      apply(normalizeFavoriteIds(rawValue, catalogBooks));
+      const synced = normalizeSerializedFavoriteIds(event.newValue);
+      apply(synced.normalized);
+      if (synced.needsRepair) persist(synced.normalized);
     };
 
     window.addEventListener("storage", syncFromAnotherTab);
