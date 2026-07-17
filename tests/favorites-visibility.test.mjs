@@ -17,3 +17,17 @@ test("favorites UI is disabled by one shared feature flag", async () => {
   assert.match(indicator, /import \{ FAVORITES_UI_ENABLED \} from "\.\.\/lib\/features"/);
   assert.match(indicator, /if \(!FAVORITES_UI_ENABLED\) return null/);
 });
+
+test("account and wishlist route honor the favorites flag", async () => {
+  const [account, wishlistRoute, wishlistContent] = await Promise.all([
+    read("../app/mi-cuenta/page.tsx"),
+    read("../app/lista/page.tsx"),
+    read("../app/lista/wishlist-page-content.tsx"),
+  ]);
+
+  assert.match(account, /FAVORITES_UI_ENABLED &&/);
+  assert.match(wishlistRoute, /if \(!FAVORITES_UI_ENABLED\) redirect\("\/seccion"\)/);
+  assert.match(wishlistRoute, /<WishlistPageContent \/>/);
+  assert.match(wishlistContent, /useFavorites/);
+  assert.match(wishlistContent, /sm-literatura|favoriteIds/);
+});
