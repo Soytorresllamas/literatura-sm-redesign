@@ -21,7 +21,7 @@ a { color: inherit; text-decoration: none; }
 .header-actions { display: flex; align-items: center; gap: 20px; }
 .text-button, .save-button, .modal-close { background: transparent; border: 0; cursor: pointer; color: var(--ink); }
 .text-button { font-size: 15px; font-weight: 700; }
-.save-button { display: inline-flex; align-items: center; gap: 1px; line-height: 1; }.save-count { min-width: 13px; color: var(--ink); font-size: 13px; text-align: left; }
+.save-button { display: inline-flex; align-items: center; gap: 1px; line-height: 1; }.save-count { width: 3ch; flex: 0 0 3ch; color: var(--ink); font-size: 13px; font-variant-numeric: tabular-nums; text-align: left; }
 .favorite-heart { position: relative; display: inline-grid; place-items: center; width: 34px; height: 34px; flex: 0 0 auto; transform-origin: center; transition: transform .18s ease; will-change: transform; }
 .favorite-heart-icon { display: block; width: 100%; height: 100%; overflow: visible; color: var(--coral); }
 .favorite-heart-icon path { vector-effect: non-scaling-stroke; }
@@ -35,7 +35,6 @@ a { color: inherit; text-decoration: none; }
 .favorite-button-detail { display: inline-flex; align-items: center; gap: 5px; min-height: 48px; padding: 5px 16px 5px 8px; border: 1px solid #cfd8d2; background: transparent; }
 .favorite-button-detail:hover .favorite-heart { transform: scale(1.04); }
 .card-main-link { position: relative; z-index: 1; display: block; }
-.save-count.is-loading { min-width: 13px; }
 @media (prefers-reduced-motion: reduce) {
   .favorite-heart { transition: none; }
 }

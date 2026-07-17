@@ -42,3 +42,9 @@ test("favorite button has a stable 48px hit target and restrained motion", () =>
   assert.match(stylesheetSource, /\.favorite-button-card:hover \.favorite-heart\s*\{[^}]*scale\(1\.04\)/);
   assert.match(stylesheetSource, /prefers-reduced-motion:\s*reduce/);
 });
+
+test("header count reserves a fixed three-digit width through 360", () => {
+  assert.match(indicatorSource, /const visibleCount = ready \? String\(count\)/);
+  assert.match(stylesheetSource, /\.save-count\s*\{[^}]*width:\s*3ch;[^}]*font-variant-numeric:\s*tabular-nums/);
+  assert.doesNotMatch(stylesheetSource, /\.save-count\.is-loading/);
+});

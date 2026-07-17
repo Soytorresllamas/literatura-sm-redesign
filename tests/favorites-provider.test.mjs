@@ -37,6 +37,7 @@ function createProviderHarness(initialValue) {
   const listeners = new Map();
   const microtasks = [];
   const writes = [];
+  const favoriteStateUpdates = [];
   let storedValue = initialValue;
 
   const window = {
@@ -64,7 +65,9 @@ function createProviderHarness(initialValue) {
     useEffect: (effect) => effects.push(effect),
     useMemo: (factory) => factory(),
     useRef: (value) => ({ current: value }),
-    useState: (value) => [value, () => {}],
+    useState: (value) => [value, (next) => {
+      if (Array.isArray(value)) favoriteStateUpdates.push(next);
+    }],
   };
   const store = {
     SAVED_BOOKS_KEY: savedBooksKey,
@@ -92,6 +95,7 @@ function createProviderHarness(initialValue) {
   });
 
   return {
+    favoriteStateUpdates,
     listener(type) {
       return listeners.get(type);
     },
@@ -100,6 +104,9 @@ function createProviderHarness(initialValue) {
       assert.equal(effects.length, 1);
       effects[0]();
       while (microtasks.length > 0) microtasks.shift()();
+    },
+    setStoredValue(value) {
+      storedValue = value;
     },
     writes,
   };
@@ -132,10 +139,39 @@ test("storage synchronization persists normalized legacy and invalid values", ()
 
   const syncFromAnotherTab = harness.listener("storage");
   assert.equal(typeof syncFromAnotherTab, "function");
+  const currentStoredValue = JSON.stringify(["Legacy title", "known-slug", "invalid-slug", "Legacy title"]);
+  harness.setStoredValue(currentStoredValue);
   syncFromAnotherTab({
     key: savedBooksKey,
-    newValue: JSON.stringify(["Legacy title", "known-slug", "invalid-slug", "Legacy title"]),
+    newValue: currentStoredValue,
   });
 
   assert.deepEqual(harness.writes, [{ key: savedBooksKey, value: '["known-slug"]' }]);
+});
+
+test("storage synchronization uses the current local value instead of a stale event payload", () => {
+  const harness = createProviderHarness("[]");
+  harness.mount();
+
+  harness.setStoredValue('["known-slug"]');
+  harness.listener("storage")({
+    key: savedBooksKey,
+    newValue: "[]",
+  });
+
+  assert.deepEqual(Array.from(harness.favoriteStateUpdates.at(-1)), ["known-slug"]);
+  assert.deepEqual(harness.writes, []);
+});
+
+test("storage synchronization treats a null key as a possible storage clear", () => {
+  const harness = createProviderHarness('["known-slug"]');
+  harness.mount();
+
+  harness.setStoredValue(null);
+  harness.listener("storage")({
+    key: null,
+    newValue: null,
+  });
+
+  assert.deepEqual(Array.from(harness.favoriteStateUpdates.at(-1)), []);
 });

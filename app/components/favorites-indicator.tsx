@@ -13,7 +13,7 @@ export function FavoritesIndicator() {
       aria-label={ready ? `Lista de deseos, ${count} ${count === 1 ? "libro" : "libros"}` : "Lista de deseos"}
     >
       <FavoriteHeart active={ready && count > 0} className="favorite-heart-header" />
-      <span className={`save-count ${ready ? "" : "is-loading"}`.trim()} aria-hidden={!ready}>{visibleCount}</span>
+      <span className="save-count" aria-hidden={!ready}>{visibleCount}</span>
     </a>
   );
 }

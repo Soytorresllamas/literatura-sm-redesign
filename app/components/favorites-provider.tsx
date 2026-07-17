@@ -38,6 +38,14 @@ function persist(ids: readonly string[]) {
   }
 }
 
+function readPersistedFavoriteIds() {
+  try {
+    return window.localStorage.getItem(SAVED_BOOKS_KEY);
+  } catch {
+    return null;
+  }
+}
+
 function normalizeSerializedFavoriteIds(serialized: string | null) {
   let raw: unknown = [];
   if (serialized !== null) {
@@ -69,8 +77,8 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     let active = true;
 
     const syncFromAnotherTab = (event: StorageEvent) => {
-      if (event.key !== SAVED_BOOKS_KEY) return;
-      const synced = normalizeSerializedFavoriteIds(event.newValue);
+      if (event.key !== SAVED_BOOKS_KEY && event.key !== null) return;
+      const synced = normalizeSerializedFavoriteIds(readPersistedFavoriteIds());
       apply(synced.normalized);
       if (synced.needsRepair) persist(synced.normalized);
     };
@@ -78,13 +86,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     window.addEventListener("storage", syncFromAnotherTab);
     queueMicrotask(() => {
       if (!active) return;
-      let serialized: string | null = null;
-      try {
-        serialized = window.localStorage.getItem(SAVED_BOOKS_KEY);
-      } catch {
-        // Hydration falls back to an empty in-memory list when storage cannot be read.
-      }
-      const { normalized, needsRepair } = normalizeSerializedFavoriteIds(serialized);
+      const { normalized, needsRepair } = normalizeSerializedFavoriteIds(readPersistedFavoriteIds());
       apply(normalized);
       if (needsRepair) persist(normalized);
       setReady(true);
