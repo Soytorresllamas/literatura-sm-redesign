@@ -1,5 +1,11 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
+
+const featuresSource = await readFile(new URL("../app/lib/features.ts", import.meta.url), "utf8");
+const flagMatch = featuresSource.match(/export const FAVORITES_UI_ENABLED\s*=\s*(true|false)\s*;/);
+assert.ok(flagMatch, "FAVORITES_UI_ENABLED must be exported as one boolean literal");
+const favoritesUiEnabled = flagMatch[1] === "true";
 
 async function render(path = "/") {
   const workerUrl = new URL("../dist/server/index.js", import.meta.url);
@@ -18,6 +24,18 @@ function visibleMarkup(html) {
 }
 
 const favoritesDomMarkers = /\bclass="[^"]*\b(?:favorite-button|save-button)\b[^"]*"|\bdata-favorite-heart=/;
+
+function assertFavoritesVisibility(html, textMarkers = /Lista de deseos/) {
+  const visibleHtml = visibleMarkup(html);
+  if (favoritesUiEnabled) {
+    assert.match(visibleHtml, favoritesDomMarkers);
+    assert.match(visibleHtml, textMarkers);
+  } else {
+    assert.doesNotMatch(visibleHtml, favoritesDomMarkers);
+    assert.doesNotMatch(visibleHtml, textMarkers);
+  }
+  return visibleHtml;
+}
 
 test("server-renders the literature catalog redesign", async () => {
   const response = await render();
@@ -39,9 +57,7 @@ test("server-renders the literature catalog redesign", async () => {
   assert.match(html, /¡Casi medio año! Edición especial 30 aniversario/);
   assert.match(html, /Arma tu plan lector/);
   assert.match(html, /Para la escuela/);
-  const visibleHtml = visibleMarkup(html);
-  assert.doesNotMatch(visibleHtml, /Lista de deseos/);
-  assert.doesNotMatch(visibleHtml, favoritesDomMarkers);
+  assertFavoritesVisibility(html);
   assert.doesNotMatch(html, /Your site is taking shape|Codex is building the first version/);
   assert.doesNotMatch(html, /href="\/carrito"|Agregar al carrito|Checkout|Confirmar y pagar/);
   assert.ok(html.indexOf("Novedades editoriales") < html.indexOf("Empieza por aquí"));
@@ -52,10 +68,29 @@ test("book detail renders extended data without commerce controls", async () => 
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /¡Casi medio año! Edición especial 30 aniversario/);
-  const visibleHtml = visibleMarkup(html);
-  assert.doesNotMatch(visibleHtml, /Guardar en mi lista|Lista de deseos/);
-  assert.doesNotMatch(visibleHtml, favoritesDomMarkers);
+  assertFavoritesVisibility(html, /Guardar en mi lista|Lista de deseos/);
   assert.doesNotMatch(html, /venta en línea|Agregar al carrito|Ir al carrito|detail-price|detail-availability/);
+});
+
+test("catalog retains its content and follows favorites visibility", async () => {
+  const response = await render("/seccion");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Catálogo completo/);
+  assert.match(html, /Historias para <em>cada lector\.<\/em>/);
+  assert.match(html, /Explora \d+ títulos por edad, tema, autor, colección o ISBN/);
+  assertFavoritesVisibility(html);
+});
+
+test("new releases retain their content and follow favorites visibility", async () => {
+  const response = await render("/novedades");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Lo más reciente/);
+  assert.match(html, /Novedades para <em>descubrir\.<\/em>/);
+  assert.match(html, /Acaba de llegar/);
+  assert.match(html, /Ver todo el catálogo/);
+  assertFavoritesVisibility(html);
 });
 
 test("checkout route redirects to the catalog while commerce is hidden", async () => {
@@ -64,16 +99,31 @@ test("checkout route redirects to the catalog while commerce is hidden", async (
   assert.equal(new URL(response.headers.get("location")).pathname, "/seccion");
 });
 
-test("account omits every favorites entry point", async () => {
+test("account retains its navigation and follows favorites visibility", async () => {
   const response = await render("/mi-cuenta");
   assert.equal(response.status, 200);
   const visibleHtml = visibleMarkup(await response.text());
-  assert.doesNotMatch(visibleHtml, /href="\/lista"/);
-  assert.doesNotMatch(visibleHtml, /Mi lista|Ver lista|Lecturas guardadas/);
+  assert.match(visibleHtml, /Hola, <em>Mariana\.<\/em>/);
+  assert.match(visibleHtml, /href="\/mi-cuenta"[^>]*>Resumen/);
+  assert.match(visibleHtml, /href="\/recursos"[^>]*>Recursos/);
+  assert.match(visibleHtml, /Datos de cuenta/);
+  assert.match(visibleHtml, /Recursos de lectura/);
+  assert.match(visibleHtml, /Explorar recursos/);
+  if (favoritesUiEnabled) {
+    assert.match(visibleHtml, /href="\/lista"/);
+    assert.match(visibleHtml, /Mi lista|Ver lista|Lecturas guardadas/);
+  } else {
+    assert.doesNotMatch(visibleHtml, /href="\/lista"/);
+    assert.doesNotMatch(visibleHtml, /Mi lista|Ver lista|Lecturas guardadas/);
+  }
 });
 
-test("wishlist route redirects to the catalog while favorites are hidden", async () => {
+test("wishlist route follows the configured favorites visibility", async () => {
   const response = await render("/lista");
-  assert.equal(response.status, 307);
-  assert.equal(new URL(response.headers.get("location")).pathname, "/seccion");
+  if (favoritesUiEnabled) {
+    assert.equal(response.status, 200);
+  } else {
+    assert.equal(response.status, 307);
+    assert.equal(new URL(response.headers.get("location")).pathname, "/seccion");
+  }
 });
