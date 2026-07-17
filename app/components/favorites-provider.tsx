@@ -66,16 +66,7 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    let serialized: string | null = null;
-    try {
-      serialized = window.localStorage.getItem(SAVED_BOOKS_KEY);
-    } catch {
-      // Hydration falls back to an empty in-memory list when storage cannot be read.
-    }
-    const { normalized, needsRepair } = normalizeSerializedFavoriteIds(serialized);
-    apply(normalized);
-    if (needsRepair) persist(normalized);
-    setReady(true);
+    let active = true;
 
     const syncFromAnotherTab = (event: StorageEvent) => {
       if (event.key !== SAVED_BOOKS_KEY) return;
@@ -85,7 +76,24 @@ export function FavoritesProvider({ children }: { children: ReactNode }) {
     };
 
     window.addEventListener("storage", syncFromAnotherTab);
-    return () => window.removeEventListener("storage", syncFromAnotherTab);
+    queueMicrotask(() => {
+      if (!active) return;
+      let serialized: string | null = null;
+      try {
+        serialized = window.localStorage.getItem(SAVED_BOOKS_KEY);
+      } catch {
+        // Hydration falls back to an empty in-memory list when storage cannot be read.
+      }
+      const { normalized, needsRepair } = normalizeSerializedFavoriteIds(serialized);
+      apply(normalized);
+      if (needsRepair) persist(normalized);
+      setReady(true);
+    });
+
+    return () => {
+      active = false;
+      window.removeEventListener("storage", syncFromAnotherTab);
+    };
   }, [apply]);
 
   const toggleFavorite = useCallback((book: Pick<BookRecord, "slug" | "title">) => {

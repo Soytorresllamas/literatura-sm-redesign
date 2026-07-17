@@ -18,14 +18,14 @@ function evaluateTypeScript(source, fileName, requireModule, globals = {}) {
     },
     fileName,
   });
-  const module = { exports: {} };
+  const compiledModule = { exports: {} };
   vm.runInNewContext(outputText, {
     ...globals,
-    exports: module.exports,
-    module,
+    exports: compiledModule.exports,
+    module: compiledModule,
     require: requireModule,
   }, { filename: fileName });
-  return module.exports;
+  return compiledModule.exports;
 }
 
 const core = evaluateTypeScript(favoritesCore, "favorites-core.ts", (specifier) => {
@@ -35,6 +35,7 @@ const core = evaluateTypeScript(favoritesCore, "favorites-core.ts", (specifier) 
 function createProviderHarness(initialValue) {
   const effects = [];
   const listeners = new Map();
+  const microtasks = [];
   const writes = [];
   let storedValue = initialValue;
 
@@ -85,7 +86,10 @@ function createProviderHarness(initialValue) {
     if (specifier === "../lib/favorites-core") return core;
     if (specifier === "../lib/store") return store;
     throw new Error(`Unexpected provider import: ${specifier}`);
-  }, { window });
+  }, {
+    queueMicrotask: (callback) => microtasks.push(callback),
+    window,
+  });
 
   return {
     listener(type) {
@@ -95,6 +99,7 @@ function createProviderHarness(initialValue) {
       providerModule.FavoritesProvider({ children: null });
       assert.equal(effects.length, 1);
       effects[0]();
+      while (microtasks.length > 0) microtasks.shift()();
     },
     writes,
   };
