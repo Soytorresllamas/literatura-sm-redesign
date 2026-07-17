@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Source_Serif_4 } from "next/font/google";
+import { FavoritesProvider } from "./components/favorites-provider";
 import "./globals.css";
 
 const sourceSerif = Source_Serif_4({
@@ -35,7 +36,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="es">
-      <body className={sourceSerif.variable}>{children}</body>
+      <body className={sourceSerif.variable}>
+        <FavoritesProvider>{children}</FavoritesProvider>
+      </body>
     </html>
   );
 }
