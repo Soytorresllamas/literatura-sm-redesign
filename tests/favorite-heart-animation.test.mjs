@@ -29,6 +29,12 @@ test("favorite interactions use shared accessible controls", () => {
   assert.match(indicatorSource, /useFavorites/);
 });
 
+test("favorite keyboard activation toggles once and suppresses default navigation", () => {
+  assert.match(favoriteButtonSource, /onKeyDown=/);
+  assert.match(favoriteButtonSource, /event\.key !== "Enter" && event\.key !== " "/);
+  assert.match(favoriteButtonSource, /event\.preventDefault\(\);\s*event\.stopPropagation\(\);\s*if \(!event\.repeat\) toggleFavorite\(book\)/);
+});
+
 test("favorite button has a stable 48px hit target and restrained motion", () => {
   assert.match(stylesheetSource, /\.favorite-button-card\s*\{[^}]*width:\s*48px;[^}]*height:\s*48px/);
   assert.match(stylesheetSource, /\.favorite-button-card:hover \.favorite-heart\s*\{[^}]*scale\(1\.04\)/);

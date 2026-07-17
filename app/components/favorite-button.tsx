@@ -23,6 +23,12 @@ export function FavoriteButton({ book, variant = "card", className = "" }: Favor
       aria-pressed={active}
       disabled={!ready}
       onPointerDown={(event) => event.stopPropagation()}
+      onKeyDown={(event) => {
+        if (event.key !== "Enter" && event.key !== " ") return;
+        event.preventDefault();
+        event.stopPropagation();
+        if (!event.repeat) toggleFavorite(book);
+      }}
       onClick={(event) => {
         event.preventDefault();
         event.stopPropagation();
