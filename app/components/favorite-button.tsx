@@ -3,6 +3,7 @@
 import type { BookRecord } from "./book-data";
 import { FavoriteHeart } from "./favorite-heart";
 import { useFavorites } from "./favorites-provider";
+import { FAVORITES_UI_ENABLED } from "../lib/features";
 
 type FavoriteButtonProps = {
   book: Pick<BookRecord, "slug" | "title">;
@@ -12,6 +13,8 @@ type FavoriteButtonProps = {
 
 export function FavoriteButton({ book, variant = "card", className = "" }: FavoriteButtonProps) {
   const { isFavorite, ready, toggleFavorite } = useFavorites();
+  if (!FAVORITES_UI_ENABLED) return null;
+
   const active = isFavorite(book);
   const action = active ? "Quitar" : "Guardar";
 

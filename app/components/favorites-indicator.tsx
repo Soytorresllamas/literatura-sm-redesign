@@ -2,9 +2,12 @@
 
 import { FavoriteHeart } from "./favorite-heart";
 import { useFavorites } from "./favorites-provider";
+import { FAVORITES_UI_ENABLED } from "../lib/features";
 
 export function FavoritesIndicator() {
   const { count, ready } = useFavorites();
+  if (!FAVORITES_UI_ENABLED) return null;
+
   const visibleCount = ready ? String(count) : "\u00a0";
   return (
     <a
