@@ -2,7 +2,7 @@
 
 :root { --ink: #1b2f35; --muted: #6c7777; --cream: #f7f3eb; --paper: #fffdf8; --coral: #ec6f60; --yellow: #f5d36a; --blue: #6fa6c7; --line: #dbe0d8; }
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; scroll-padding-top: 96px; }
 body { margin: 0; background: var(--cream); color: var(--ink); font-family: var(--font-source-serif), Georgia, serif; font-size: 17px; line-height: 1.55; }
 button, input, select { font: inherit; }
 button, a { -webkit-tap-highlight-color: transparent; }
