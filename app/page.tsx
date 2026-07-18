@@ -3,11 +3,10 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { BookCover } from "./components/book-cover";
-import { BrandLogo } from "./components/brand-logo";
 import { ageFacets, catalogBooks, newestBooks, themeFacets, type BookRecord } from "./components/book-data";
 import { FavoriteButton } from "./components/favorite-button";
-import { FavoritesIndicator } from "./components/favorites-indicator";
 import { NoveltyCarousel } from "./components/novelty-carousel";
+import { SectionHeader } from "./components/section-header";
 import { SiteFooter } from "./components/site-footer";
 
 const books = catalogBooks;
@@ -43,29 +42,7 @@ export default function Home() {
 
   return (
     <main>
-      <header className="site-header">
-        <a className="brand brand-header" href="#inicio" aria-label="SM Literatura, inicio"><BrandLogo priority /></a>
-        <nav className="main-nav" aria-label="Navegación principal">
-          <Link className="active" href="/seccion">Explorar libros</Link>
-          <Link href="/planes-lectores">Planes lectores</Link>
-          <Link href="/recursos">Recursos</Link>
-          <Link href="/novedades">Novedades</Link>
-        </nav>
-        <details className="mobile-menu-details">
-          <summary>Menú <span>＋</span></summary>
-          <nav aria-label="Navegación móvil">
-            <Link href="/seccion">Explorar libros</Link>
-            <Link href="/planes-lectores">Planes lectores</Link>
-            <Link href="/recursos">Recursos</Link>
-            <Link href="/novedades">Novedades</Link>
-            <Link href="/buscar">Buscar</Link>
-          </nav>
-        </details>
-        <div className="header-actions">
-          <Link className="text-button" href="/planes-lectores">Soy docente</Link>
-          <FavoritesIndicator />
-        </div>
-      </header>
+      <SectionHeader />
 
       <section className="hero" id="inicio">
         <div className="hero-copy">

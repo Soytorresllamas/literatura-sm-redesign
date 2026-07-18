@@ -21,7 +21,8 @@ test("favorite consumers contain no direct storage ownership", () => {
 });
 
 test("all favorite surfaces use shared controls", () => {
-  assert.match(sources[0], /<FavoritesIndicator \/>/);
+  // El home monta el indicador a través del header compartido.
+  assert.match(sources[0], /<SectionHeader \/>/);
   assert.match(sources[0], /<FavoriteButton book=\{book\} \/>/);
   assert.match(sources[1], /<FavoriteButton book=\{book\} \/>/);
   assert.match(sources[2], /<FavoritesIndicator \/>/);

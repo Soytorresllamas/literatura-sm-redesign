@@ -89,6 +89,8 @@ test("server-renders the literature catalog redesign", async () => {
   assert.match(html, /sm-logo\.png/);
   assert.ok((html.match(/sm-logo\.png/g) ?? []).length >= 2);
   assert.match(html, /favicon\.png/);
+  // En "/" ningún enlace del menú puede venir marcado activo desde el servidor.
+  assert.doesNotMatch(html, /class="active"/);
   assert.match(html, /Busca por título, autor o ISBN/);
   assert.match(html, /Historias que abren mundos/);
   assert.match(html, /Elige una lectura para cada etapa/);
