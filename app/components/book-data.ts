@@ -1,5 +1,8 @@
 import sourceCatalog from "../../data/catalog/catalog-index.json";
 
+export type ReadingPlanId = "loran" | "trotamundos" | "cosmos";
+export type BookPlanEntry = { plan: ReadingPlanId; level: string };
+
 export type BookRecord = {
   id: number;
   slug: string;
@@ -22,6 +25,7 @@ export type BookRecord = {
   featured: boolean;
   note?: string;
   format?: string;
+  plans?: BookPlanEntry[];
   searchText: string;
 };
 
@@ -100,4 +104,30 @@ export function getRelatedBooks(book: BookRecord, limit = 3) {
     .sort((a, b) => b.score - a.score || b.candidate.id - a.candidate.id)
     .slice(0, limit)
     .map(({ candidate }) => candidate);
+}
+
+export type ReadingPlan = {
+  id: ReadingPlanId;
+  name: string;
+  tagline: string;
+  books: BookRecord[];
+  levels: { name: string; count: number }[];
+};
+
+const planMeta: { id: ReadingPlanId; name: string; tagline: string }[] = [
+  { id: "loran", name: "Loran", tagline: "Lecturas graduadas de preescolar a secundaria." },
+  { id: "trotamundos", name: "Trotamundos", tagline: "Literatura que inspira a los lectores del futuro." },
+  { id: "cosmos", name: "Cosmos", tagline: "Historias de bachillerato para lectores que despegan." },
+];
+
+export const readingPlans: ReadingPlan[] = planMeta.map((meta) => {
+  const books = catalogBooks.filter((book) => book.plans?.some((entry) => entry.plan === meta.id));
+  const levels = countFacet(books.flatMap((book) => (book.plans ?? [])
+    .filter((entry) => entry.plan === meta.id)
+    .map((entry) => entry.level)));
+  return { ...meta, books, levels };
+});
+
+export function getReadingPlan(id: string | null | undefined) {
+  return readingPlans.find((plan) => plan.id === id);
 }

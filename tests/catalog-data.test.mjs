@@ -24,3 +24,17 @@ test("catalog identifiers are unique and required display fields are present", (
     assert.equal("price" in book, false, `public price leaked on product ${book.id}`);
   }
 });
+
+test("reading plans are extracted with structured plan and level", () => {
+  const byPlan = (plan) => catalog.filter((book) => book.plans?.some((entry) => entry.plan === plan));
+  assert.ok(byPlan("loran").length >= 190, `loran: ${byPlan("loran").length}`);
+  assert.ok(byPlan("trotamundos").length >= 140, `trotamundos: ${byPlan("trotamundos").length}`);
+  assert.equal(byPlan("cosmos").length, 17);
+  for (const book of catalog) {
+    for (const entry of book.plans ?? []) {
+      assert.match(entry.plan, /^(loran|trotamundos|cosmos)$/);
+      assert.ok(entry.level?.trim(), `nivel vacío en ${book.slug}`);
+      assert.doesNotMatch(entry.level, /-/, `nivel sin normalizar en ${book.slug}: ${entry.level}`);
+    }
+  }
+});

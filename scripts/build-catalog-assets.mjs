@@ -65,6 +65,36 @@ function selectSeries(book) {
   return book.categories.find((category) => !ignored.test(category)) ?? "Literatura SM";
 }
 
+const PLAN_LEVEL_PATTERN = /^(Loran|Trotamundos)(?:\s*>\s*|\s+)(.+)$/;
+
+function normalizeLevel(value) {
+  const level = value.replace(/-/g, " ").replace(/\s+/g, " ").trim();
+  if (/^multinivel(?: multinivel)?$/i.test(level)) return "Multinivel";
+  return titleCase(level.toLowerCase());
+}
+
+function extractPlans(book) {
+  const plans = new Map();
+  for (const category of book.categories) {
+    const match = PLAN_LEVEL_PATTERN.exec(category);
+    if (!match) continue;
+    const plan = match[1].toLowerCase();
+    const level = normalizeLevel(match[2]);
+    plans.set(`${plan}|${level}`, { plan, level });
+  }
+  for (const plan of ["Loran", "Trotamundos"]) {
+    const id = plan.toLowerCase();
+    if (book.categories.includes(plan) && ![...plans.values()].some((entry) => entry.plan === id)) {
+      plans.set(`${id}|Multinivel`, { plan: id, level: "Multinivel" });
+    }
+  }
+  if (book.editorial.schoolLevel === "Bachillerato") {
+    const level = titleCase((book.editorial.schoolGrade || "Bachillerato").toLowerCase());
+    plans.set(`cosmos|${level}`, { plan: "cosmos", level });
+  }
+  return [...plans.values()].sort((a, b) => a.plan.localeCompare(b.plan) || a.level.localeCompare(b.level, "es"));
+}
+
 function optionalEntries(value) {
   return Object.fromEntries(Object.entries(value).filter(([, item]) => item !== undefined && item !== null && item !== ""));
 }
@@ -79,6 +109,7 @@ const catalog = published.map((book) => {
   const author = book.editorial.author || "Autor por confirmar";
   const level = book.editorial.schoolGrade || book.editorial.schoolLevel || book.editorial.planLevel || "Lectura libre";
   const searchText = [book.title, author, book.editorial.isbn, book.editorial.collection, book.editorial.genre, ...themes, ...book.categories, ...book.tags].filter(Boolean).join(" ").toLowerCase();
+  const plans = extractPlans(book);
   return optionalEntries({
     id: book.id,
     slug: book.slug,
@@ -100,6 +131,7 @@ const catalog = published.map((book) => {
     featured: book.featured,
     note,
     format: book.editorial.format,
+    plans: plans.length ? plans : undefined,
     searchText,
   });
 }).sort((a, b) => b.id - a.id);
