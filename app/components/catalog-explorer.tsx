@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useLayoutEffect, useMemo, useState } from "react";
 import type { BookRecord, ReadingPlanId } from "./book-data";
 import { readingPlans } from "./book-data";
 import { CatalogCard } from "./catalog-card";
@@ -38,15 +38,14 @@ export function CatalogExplorer({ books, initialAge = "Todas", initialTheme = "T
     count: books.filter((book) => book.plans?.some((item) => item.plan === entry.id)).length,
   })), [books]);
 
-  useEffect(() => {
-    const timer = window.setTimeout(() => {
-      const requested = new URLSearchParams(window.location.search).get("plan");
-      if (requested && PLAN_IDS.includes(requested as ReadingPlanId)) {
-        setPlan(requested);
-        setVisible(pageSize);
-      }
-    }, 0);
-    return () => window.clearTimeout(timer);
+  useLayoutEffect(() => {
+    // Lee ?plan= antes del primer paint para evitar parpadeo del catálogo completo
+    const requested = new URLSearchParams(window.location.search).get("plan");
+    if (requested && PLAN_IDS.includes(requested as ReadingPlanId)) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- sincrónico a propósito: debe aplicarse antes del primer paint
+      setPlan(requested);
+      setVisible(pageSize);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

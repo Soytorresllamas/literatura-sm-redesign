@@ -24,7 +24,7 @@ a { color: inherit; text-decoration: none; }
 .save-button { display: inline-flex; align-items: center; gap: 1px; line-height: 1; }.save-count { width: 3ch; flex: 0 0 3ch; color: var(--ink); font-size: 13px; font-variant-numeric: tabular-nums; text-align: left; }
 .favorite-heart { position: relative; display: inline-grid; place-items: center; width: 20px; height: 20px; flex: 0 0 auto; transform-origin: center; transition: transform .18s ease; will-change: transform; }
 .favorite-heart-icon { display: block; width: 100%; height: 100%; overflow: visible; color: var(--muted); transition: color .18s ease; }
-.favorite-heart-icon.is-filled, .favorite-button:hover .favorite-heart-icon, .favorite-button:focus-visible .favorite-heart-icon, .save-button:hover .favorite-heart-icon { color: var(--coral); }
+.favorite-heart-icon.is-filled, .favorite-button:hover .favorite-heart-icon, .favorite-button:focus-visible .favorite-heart-icon, .save-button:hover .favorite-heart-icon, .save-button:focus-visible .favorite-heart-icon { color: var(--coral); }
 .favorite-heart-icon path { vector-effect: non-scaling-stroke; }
 .favorite-heart-header { width: 18px; height: 18px; }
 .favorite-heart-detail { width: 20px; height: 20px; }
