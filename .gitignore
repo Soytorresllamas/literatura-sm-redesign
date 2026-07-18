@@ -15,12 +15,18 @@
 
 # next.js
 /.next/
-/.vinext/
 /out/
 
 # misc
 .DS_Store
 *.pem
+
+# copias de sincronización (iCloud/Dropbox): "archivo 2.tsx", etc.
+* 2.ts
+* 2.tsx
+* 2.mjs
+* 2.js
+* 2.json
 
 # debug
 npm-debug.log*
@@ -38,7 +44,6 @@ yarn-error.log*
 next-env.d.ts
 *.tsbuildinfo
 /dist/
-/.wrangler/
 /outputs/
 /work/
 

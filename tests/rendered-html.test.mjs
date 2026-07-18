@@ -1,22 +1,63 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
-import test from "node:test";
+import { spawn } from "node:child_process";
+import { fileURLToPath } from "node:url";
+import { setTimeout as sleep } from "node:timers/promises";
+import test, { before, after } from "node:test";
 
 const featuresSource = await readFile(new URL("../app/lib/features.ts", import.meta.url), "utf8");
 const flagMatch = featuresSource.match(/export const FAVORITES_UI_ENABLED\s*=\s*(true|false)\s*;/);
 assert.ok(flagMatch, "FAVORITES_UI_ENABLED must be exported as one boolean literal");
 const favoritesUiEnabled = flagMatch[1] === "true";
 
-async function render(path = "/") {
-  const workerUrl = new URL("../dist/server/index.js", import.meta.url);
-  workerUrl.searchParams.set("test", `${process.pid}-${Date.now()}`);
-  const { default: worker } = await import(workerUrl.href);
+// Rendered against the native Next.js production server (`next start`), which is
+// exactly what Vercel serves. The catalog is fully static, so a single booted
+// server answers every route below.
+const PORT = Number(process.env.TEST_PORT ?? 3987);
+const BASE = `http://localhost:${PORT}`;
+const projectRoot = fileURLToPath(new URL("..", import.meta.url));
+const nextBin = fileURLToPath(new URL("../node_modules/next/dist/bin/next", import.meta.url));
 
-  return worker.fetch(
-    new Request(`http://localhost${path}`, { headers: { accept: "text/html" } }),
-    { ASSETS: { fetch: async () => new Response("Not found", { status: 404 }) } },
-    { waitUntil() {}, passThroughOnException() {} },
-  );
+let server;
+
+before(async () => {
+  // Invoke the local Next binary directly with Node instead of `npx`, which is
+  // not resolvable on PATH under `node --test`.
+  server = spawn(process.execPath, [nextBin, "start", "-p", String(PORT)], {
+    cwd: projectRoot,
+    env: { ...process.env, PORT: String(PORT) },
+    stdio: "ignore",
+    detached: true,
+  });
+
+  const deadline = Date.now() + 90_000;
+  for (;;) {
+    try {
+      const probe = await fetch(BASE, { redirect: "manual" });
+      await probe.arrayBuffer();
+      break;
+    } catch {
+      if (Date.now() > deadline) throw new Error("next start no respondió a tiempo");
+      await sleep(500);
+    }
+  }
+});
+
+after(() => {
+  if (server?.pid) {
+    try {
+      process.kill(-server.pid, "SIGTERM");
+    } catch {
+      server.kill("SIGTERM");
+    }
+  }
+});
+
+async function render(path = "/") {
+  return fetch(`${BASE}${path}`, {
+    redirect: "manual",
+    headers: { accept: "text/html" },
+  });
 }
 
 function visibleMarkup(html) {
@@ -94,9 +135,13 @@ test("new releases retain their content and follow favorites visibility", async 
 });
 
 test("checkout route redirects to the catalog while commerce is hidden", async () => {
+  // The checkout page calls redirect("/seccion"). Next statically prerenders it,
+  // so production (next start / Vercel) serves a 200 with a meta-refresh to the
+  // catalog rather than an HTTP 307.
   const response = await render("/checkout");
-  assert.equal(response.status, 307);
-  assert.equal(new URL(response.headers.get("location"), "http://localhost").pathname, "/seccion");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /http-equiv="refresh"[^>]*content="[^"]*url=\/seccion"/);
 });
 
 test("account retains its navigation and follows favorites visibility", async () => {
@@ -124,6 +169,6 @@ test("wishlist route follows the configured favorites visibility", async () => {
     assert.equal(response.status, 200);
   } else {
     assert.equal(response.status, 307);
-    assert.equal(new URL(response.headers.get("location"), "http://localhost").pathname, "/seccion");
+    assert.equal(new URL(response.headers.get("location"), BASE).pathname, "/seccion");
   }
 });
