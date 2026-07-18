@@ -192,3 +192,12 @@ test("catalog explorer offers the reading plan facet", async () => {
   const html = await response.text();
   assert.match(html, /Plan lector/);
 });
+
+test("unknown routes render the playful 404", async () => {
+  const response = await render("/este-capitulo-no-existe");
+  assert.equal(response.status, 404);
+  const html = await response.text();
+  assert.match(html, /Este capítulo no existe/);
+  assert.match(html, /Estas historias sí existen/);
+  assert.match(html, /href="\/seccion"/);
+});
