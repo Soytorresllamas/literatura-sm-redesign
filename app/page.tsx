@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { BookCover } from "./components/book-cover";
 import { ageFacets, catalogBooks, newestBooks, themeFacets, type BookRecord } from "./components/book-data";
@@ -20,6 +21,7 @@ const ages = ["Todas", ...ageFacets.map((item) => item.name).filter((item) => it
 const themes = themeFacets.slice(0, 12).map((item) => item.name);
 
 export default function Home() {
+  const router = useRouter();
   const [query, setQuery] = useState("");
   const [age, setAge] = useState("Todas");
   const [theme, setTheme] = useState("Todos");
@@ -51,7 +53,7 @@ export default function Home() {
           <p className="hero-intro">Libros para descubrir, conversar y leer juntos en casa o en la escuela.</p>
           <div className="hero-search">
             <span aria-hidden="true">⌕</span>
-            <input value={query} onChange={(event) => { setQuery(event.target.value); setVisible(12); }} onKeyDown={(event) => { if (event.key === "Enter") window.location.href = `/buscar?q=${encodeURIComponent(query)}`; }} placeholder="Busca por título, autor o ISBN" aria-label="Buscar libros" />
+            <input value={query} onChange={(event) => { setQuery(event.target.value); setVisible(12); }} onKeyDown={(event) => { if (event.key === "Enter") router.push(`/buscar?q=${encodeURIComponent(query)}`); }} placeholder="Busca por título, autor o ISBN" aria-label="Buscar libros" />
             <kbd>⌘ K</kbd>
           </div>
           <div className="hero-links">
