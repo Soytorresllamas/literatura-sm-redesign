@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
+import { Suspense, useEffect, useMemo, useState } from "react";
 import { BookCover } from "../components/book-cover";
 import { getRelatedBooks } from "../components/book-data";
 import { getDetailedBookBySlug } from "../components/book-detail-data";
@@ -9,12 +10,20 @@ import { FavoriteButton } from "../components/favorite-button";
 import { SectionHeader } from "../components/section-header";
 import { SiteFooter } from "../components/site-footer";
 
+// Los enlaces de "También puede gustarte" navegan /libro → /libro en cliente,
+// sin remontar la página. useSearchParams es reactivo a esos cambios; vive en
+// un componente aparte bajo Suspense para no alterar el prerender estático.
+function BookSlugSync({ onSlug }: { onSlug: (slug: string | null) => void }) {
+  const searchParams = useSearchParams();
+  const slug = searchParams.get("slug");
+  useEffect(() => {
+    onSlug(slug);
+  }, [slug, onSlug]);
+  return null;
+}
+
 export default function BookPage() {
   const [slug, setSlug] = useState<string | null>(null);
-  useEffect(() => {
-    const timer = window.setTimeout(() => setSlug(new URLSearchParams(window.location.search).get("slug")), 0);
-    return () => window.clearTimeout(timer);
-  }, []);
   const book = getDetailedBookBySlug(slug);
   const related = useMemo(() => getRelatedBooks(book), [book]);
   const resources = [
@@ -26,6 +35,9 @@ export default function BookPage() {
 
   return (
     <main>
+      <Suspense fallback={null}>
+        <BookSlugSync onSlug={setSlug} />
+      </Suspense>
       <SectionHeader />
       <div className="book-breadcrumbs">
         <Link href="/">Inicio</Link>
