@@ -1,1 +1,1 @@
-export const FAVORITES_UI_ENABLED = false;
+export const FAVORITES_UI_ENABLED = true;
