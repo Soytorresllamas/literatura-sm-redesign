@@ -1,22 +1,60 @@
 "use client";
 
-/* eslint-disable @next/next/no-html-link-for-pages */
-
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { BrandLogo } from "./brand-logo";
 import { FavoritesIndicator } from "./favorites-indicator";
 
+const NAV_LINKS = [
+  { href: "/seccion", label: "Explorar libros" },
+  { href: "/planes-lectores", label: "Planes lectores" },
+  { href: "/recursos", label: "Recursos" },
+  { href: "/novedades", label: "Novedades" },
+];
+
 export function SectionHeader() {
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+
   return (
     <header className="site-header">
-      <a className="brand brand-header" href="/" aria-label="SM Literatura, inicio"><BrandLogo priority /></a>
+      <Link className="brand brand-header" href="/" aria-label="SM Literatura, inicio">
+        <BrandLogo priority />
+      </Link>
       <nav className="main-nav" aria-label="Navegación principal">
-        <a className="active" href="/seccion">Explorar libros</a><a href="/planes-lectores">Planes lectores</a><a href="/recursos">Recursos</a><a href="/novedades">Novedades</a>
+        {NAV_LINKS.map((link) => (
+          <Link
+            key={link.href}
+            href={link.href}
+            className={pathname === link.href ? "active" : undefined}
+            aria-current={pathname === link.href ? "page" : undefined}
+          >
+            {link.label}
+          </Link>
+        ))}
       </nav>
-      <button className="mobile-menu-toggle" aria-expanded={open} aria-controls="mobile-navigation" onClick={() => setOpen((value) => !value)}>Menú <span>{open ? "×" : "＋"}</span></button>
-      <div className="header-actions"><a className="text-button" href="/planes-lectores">Soy docente</a><FavoritesIndicator /></div>
-      {open && <nav className="mobile-navigation" id="mobile-navigation" aria-label="Navegación móvil"><a href="/seccion" onClick={() => setOpen(false)}>Explorar libros</a><a href="/planes-lectores" onClick={() => setOpen(false)}>Planes lectores</a><a href="/recursos" onClick={() => setOpen(false)}>Recursos</a><a href="/novedades" onClick={() => setOpen(false)}>Novedades</a><a href="/buscar" onClick={() => setOpen(false)}>Buscar</a></nav>}
+      <button
+        className="mobile-menu-toggle"
+        aria-expanded={open}
+        aria-controls="mobile-navigation"
+        onClick={() => setOpen((value) => !value)}
+      >
+        Menú <span>{open ? "×" : "＋"}</span>
+      </button>
+      <div className="header-actions">
+        <Link className="text-button" href="/planes-lectores">Soy docente</Link>
+        <FavoritesIndicator />
+      </div>
+      {open && (
+        <nav className="mobile-navigation" id="mobile-navigation" aria-label="Navegación móvil">
+          {[...NAV_LINKS, { href: "/buscar", label: "Buscar" }].map((link) => (
+            <Link key={link.href} href={link.href} onClick={() => setOpen(false)}>
+              {link.label}
+            </Link>
+          ))}
+        </nav>
+      )}
     </header>
   );
 }

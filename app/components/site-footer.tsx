@@ -1,5 +1,4 @@
-/* eslint-disable @next/next/no-html-link-for-pages */
-
+import Link from "next/link";
 import { BrandLogo } from "./brand-logo";
 
 export function SiteFooter() {
@@ -8,7 +7,11 @@ export function SiteFooter() {
       <div className="brand brand-footer"><BrandLogo /></div>
       <p>Historias para leer el mundo.</p>
       <div className="footer-links">
-        <a href="/">Inicio</a><a href="/seccion">Catálogo</a><a href="/planes-lectores">Docentes</a><a href="/recursos">Recursos</a><a href="/contacto">Contacto</a>
+        <Link href="/">Inicio</Link>
+        <Link href="/seccion">Catálogo</Link>
+        <Link href="/planes-lectores">Docentes</Link>
+        <Link href="/recursos">Recursos</Link>
+        <Link href="/contacto">Contacto</Link>
       </div>
       <small>© SM México · Privacidad · Cookies</small>
     </footer>

@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import type { BookRecord } from "./book-data";
 import { BookCover } from "./book-cover";
@@ -25,6 +27,7 @@ function positionClass(position: number) {
 }
 
 export function NoveltyCarousel({ books }: NoveltyCarouselProps) {
+  const router = useRouter();
   const [active, setActive] = useState(0);
   const touchStart = useRef<number | null>(null);
   const current = books[active];
@@ -42,5 +45,77 @@ export function NoveltyCarousel({ books }: NoveltyCarouselProps) {
     touchStart.current = null;
   }
 
-  return <section className="novelty-section" aria-labelledby="novelty-title"><div className="novelty-heading"><div><p className="eyebrow">Lo más reciente de Literatura SM</p><h2 id="novelty-title">Novedades</h2></div><div><span>{books.length} libros nuevos</span><a className="arrow-link" href="/novedades">Ver todas las novedades <span>↗</span></a></div></div><div className="novelty-carousel" role="region" aria-roledescription="carrusel" aria-label="Novedades editoriales" tabIndex={0} onKeyDown={(event) => { if (event.key === "ArrowLeft") move(-1); if (event.key === "ArrowRight") move(1); }} onTouchStart={(event) => { touchStart.current = event.touches[0]?.clientX ?? null; }} onTouchEnd={(event) => finishSwipe(event.changedTouches[0]?.clientX ?? 0)}><div className="novelty-stage">{books.map((book, index) => { const position = relativePosition(index, active, books.length); return <button key={book.slug} type="button" className={`novelty-slide ${positionClass(position)}`} onClick={() => position === 0 ? window.location.assign(`/libro?slug=${book.slug}`) : setActive(index)} aria-label={position === 0 ? `Ver ficha de ${book.title}` : `${book.title} — ${book.author}`} aria-current={position === 0 ? "true" : undefined} tabIndex={position === 0 ? 0 : -1}><BookCover title={book.title} author={book.author} color={book.color} accent={book.accent} image={book.image} /></button>; })}<button className="novelty-arrow novelty-arrow-previous" type="button" onClick={() => move(-1)} aria-label="Libro anterior">←</button><button className="novelty-arrow novelty-arrow-next" type="button" onClick={() => move(1)} aria-label="Libro siguiente">→</button></div><div className="novelty-copy" key={current.slug} aria-live="polite"><span className="novelty-counter">{String(active + 1).padStart(2, "0")} / {String(books.length).padStart(2, "0")}</span><h3><a href={`/libro?slug=${current.slug}`}>{current.title}</a></h3><p className="novelty-author">{current.author}</p><p className="novelty-note">{current.note || `${current.theme} · ${current.age}`}</p><a className="novelty-link" href={`/libro?slug=${current.slug}`}>Ver libro →</a></div><div className="novelty-controls"><button type="button" onClick={() => move(-1)} aria-label="Libro anterior">←</button><div className="novelty-dots" aria-label="Seleccionar novedad">{books.map((book, index) => <button key={book.slug} type="button" className={index === active ? "is-active" : ""} onClick={() => setActive(index)} aria-label={book.title} aria-current={index === active ? "true" : undefined} />)}</div><button type="button" onClick={() => move(1)} aria-label="Libro siguiente">→</button></div></div></section>;
+  return (
+    <section className="novelty-section" aria-labelledby="novelty-title">
+      <div className="novelty-heading">
+        <div>
+          <p className="eyebrow">Lo más reciente de Literatura SM</p>
+          <h2 id="novelty-title">Novedades</h2>
+        </div>
+        <div>
+          <span>{books.length} libros nuevos</span>
+          <Link className="arrow-link" href="/novedades">Ver todas las novedades <span>↗</span></Link>
+        </div>
+      </div>
+      <div
+        className="novelty-carousel"
+        role="region"
+        aria-roledescription="carrusel"
+        aria-label="Novedades editoriales"
+        tabIndex={0}
+        onKeyDown={(event) => {
+          if (event.key === "ArrowLeft") move(-1);
+          if (event.key === "ArrowRight") move(1);
+        }}
+        onTouchStart={(event) => {
+          touchStart.current = event.touches[0]?.clientX ?? null;
+        }}
+        onTouchEnd={(event) => finishSwipe(event.changedTouches[0]?.clientX ?? 0)}
+      >
+        <div className="novelty-stage">
+          {books.map((book, index) => {
+            const position = relativePosition(index, active, books.length);
+            return (
+              <button
+                key={book.slug}
+                type="button"
+                className={`novelty-slide ${positionClass(position)}`}
+                onClick={() => (position === 0 ? router.push(`/libro?slug=${book.slug}`) : setActive(index))}
+                aria-label={position === 0 ? `Ver ficha de ${book.title}` : `${book.title} — ${book.author}`}
+                aria-current={position === 0 ? "true" : undefined}
+                tabIndex={position === 0 ? 0 : -1}
+              >
+                <BookCover title={book.title} author={book.author} color={book.color} accent={book.accent} image={book.image} />
+              </button>
+            );
+          })}
+          <button className="novelty-arrow novelty-arrow-previous" type="button" onClick={() => move(-1)} aria-label="Libro anterior">←</button>
+          <button className="novelty-arrow novelty-arrow-next" type="button" onClick={() => move(1)} aria-label="Libro siguiente">→</button>
+        </div>
+        <div className="novelty-copy" key={current.slug} aria-live="polite">
+          <span className="novelty-counter">{String(active + 1).padStart(2, "0")} / {String(books.length).padStart(2, "0")}</span>
+          <h3><Link href={`/libro?slug=${current.slug}`}>{current.title}</Link></h3>
+          <p className="novelty-author">{current.author}</p>
+          <p className="novelty-note">{current.note || `${current.theme} · ${current.age}`}</p>
+          <Link className="novelty-link" href={`/libro?slug=${current.slug}`}>Ver libro →</Link>
+        </div>
+        <div className="novelty-controls">
+          <button type="button" onClick={() => move(-1)} aria-label="Libro anterior">←</button>
+          <div className="novelty-dots" aria-label="Seleccionar novedad">
+            {books.map((book, index) => (
+              <button
+                key={book.slug}
+                type="button"
+                className={index === active ? "is-active" : ""}
+                onClick={() => setActive(index)}
+                aria-label={book.title}
+                aria-current={index === active ? "true" : undefined}
+              />
+            ))}
+          </div>
+          <button type="button" onClick={() => move(1)} aria-label="Libro siguiente">→</button>
+        </div>
+      </div>
+    </section>
+  );
 }

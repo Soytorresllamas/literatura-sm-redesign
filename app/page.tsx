@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { BookCover } from "./components/book-cover";
 import { BrandLogo } from "./components/brand-logo";
@@ -45,14 +46,23 @@ export default function Home() {
       <header className="site-header">
         <a className="brand brand-header" href="#inicio" aria-label="SM Literatura, inicio"><BrandLogo priority /></a>
         <nav className="main-nav" aria-label="Navegación principal">
-          <a className="active" href="/seccion">Explorar libros</a>
-          <a href="/planes-lectores">Planes lectores</a>
-          <a href="/recursos">Recursos</a>
-          <a href="/novedades">Novedades</a>
+          <Link className="active" href="/seccion">Explorar libros</Link>
+          <Link href="/planes-lectores">Planes lectores</Link>
+          <Link href="/recursos">Recursos</Link>
+          <Link href="/novedades">Novedades</Link>
         </nav>
-        <details className="mobile-menu-details"><summary>Menú <span>＋</span></summary><nav aria-label="Navegación móvil"><a href="/seccion">Explorar libros</a><a href="/planes-lectores">Planes lectores</a><a href="/recursos">Recursos</a><a href="/novedades">Novedades</a><a href="/buscar">Buscar</a></nav></details>
+        <details className="mobile-menu-details">
+          <summary>Menú <span>＋</span></summary>
+          <nav aria-label="Navegación móvil">
+            <Link href="/seccion">Explorar libros</Link>
+            <Link href="/planes-lectores">Planes lectores</Link>
+            <Link href="/recursos">Recursos</Link>
+            <Link href="/novedades">Novedades</Link>
+            <Link href="/buscar">Buscar</Link>
+          </nav>
+        </details>
         <div className="header-actions">
-          <a className="text-button" href="/planes-lectores">Soy docente</a>
+          <Link className="text-button" href="/planes-lectores">Soy docente</Link>
           <FavoritesIndicator />
         </div>
       </header>
@@ -68,7 +78,7 @@ export default function Home() {
             <kbd>⌘ K</kbd>
           </div>
           <div className="hero-links">
-            <a href="/seccion">Explorar el catálogo <span>↗</span></a>
+            <Link href="/seccion">Explorar el catálogo <span>↗</span></Link>
             <a href="#escuela">Elegir para mi grupo <span>↗</span></a>
           </div>
         </div>
@@ -86,16 +96,28 @@ export default function Home() {
       <section className="quick-paths" aria-label="Rutas rápidas">
         <div className="section-label">Empieza por aquí</div>
         <div className="path-grid">
-          <a className="path-card path-coral" href="/seccion"><span className="path-icon">✺</span><span><strong>Para cada edad</strong><small>De primeros lectores a bachillerato</small></span><b>↗</b></a>
-          <a className="path-card path-yellow" href="/categoria?tema=Emociones"><span className="path-icon">◒</span><span><strong>Por tema</strong><small>Aventura, emociones, misterio y más</small></span><b>↗</b></a>
-          <a className="path-card path-blue" href="/planes-lectores"><span className="path-icon">▦</span><span><strong>Para la escuela</strong><small>Planes lectores y recursos docentes</small></span><b>↗</b></a>
+          <Link className="path-card path-coral" href="/seccion">
+            <span className="path-icon">✺</span>
+            <span><strong>Para cada edad</strong><small>De primeros lectores a bachillerato</small></span>
+            <b>↗</b>
+          </Link>
+          <Link className="path-card path-yellow" href="/categoria?tema=Emociones">
+            <span className="path-icon">◒</span>
+            <span><strong>Por tema</strong><small>Aventura, emociones, misterio y más</small></span>
+            <b>↗</b>
+          </Link>
+          <Link className="path-card path-blue" href="/planes-lectores">
+            <span className="path-icon">▦</span>
+            <span><strong>Para la escuela</strong><small>Planes lectores y recursos docentes</small></span>
+            <b>↗</b>
+          </Link>
         </div>
       </section>
 
       <section className="catalog-section" id="explorar">
         <div className="section-heading">
           <div><p className="eyebrow">Para descubrir hoy</p><h2>Historias que abren mundos</h2></div>
-          <a className="arrow-link" href="/seccion">Ver todo el catálogo <span>↗</span></a>
+          <Link className="arrow-link" href="/seccion">Ver todo el catálogo <span>↗</span></Link>
         </div>
         <div className="catalog-filter-panel">
           <div className="filter-panel-heading">
@@ -103,16 +125,37 @@ export default function Home() {
             <div className="filter-result-count" aria-live="polite"><strong>{filteredBooks.length}</strong><span>{filteredBooks.length === 1 ? "historia disponible" : "historias disponibles"}</span></div>
           </div>
           <div className="filter-row">
-            <div className="filter-block"><span className="filter-label">¿Para quién es la lectura?</span><div className="filter-group">{ages.map((item) => <button key={item} className={age === item ? "filter-active" : ""} aria-pressed={age === item} onClick={() => { setAge(item); setVisible(12); }}>{item}</button>)}</div></div>
-            <label className="theme-select"><span className="filter-label">Explora por tema</span><select value={theme} onChange={(event) => { setTheme(event.target.value); setVisible(12); }}><option value="Todos">Todos los temas</option>{themes.map((item) => <option key={item}>{item}</option>)}</select></label>
+            <div className="filter-block">
+              <span className="filter-label">¿Para quién es la lectura?</span>
+              <div className="filter-group">
+                {ages.map((item) => (
+                  <button key={item} className={age === item ? "filter-active" : ""} aria-pressed={age === item} onClick={() => { setAge(item); setVisible(12); }}>{item}</button>
+                ))}
+              </div>
+            </div>
+            <label className="theme-select">
+              <span className="filter-label">Explora por tema</span>
+              <select value={theme} onChange={(event) => { setTheme(event.target.value); setVisible(12); }}>
+                <option value="Todos">Todos los temas</option>
+                {themes.map((item) => <option key={item}>{item}</option>)}
+              </select>
+            </label>
           </div>
         </div>
         <div className="catalog-grid">
-          {filteredBooks.slice(0, visible).map((book) => <article className="book-card" key={book.slug}>
-            <FavoriteButton book={book} />
-            <button className="book-click" onClick={() => setSelected(book)}><BookCover title={book.title} author={book.author} color={book.color} accent={book.accent} image={book.image} /></button>
-            <div className="book-card-info"><span className="book-tag">{book.theme}</span><h3>{book.title}</h3><p>{book.author}</p><div className="book-meta"><span>{book.age}</span><span>{book.level}</span><span>{book.series}</span></div><a className="card-detail-link" href={`/libro?slug=${book.slug}`}>Ver ficha <span>↗</span></a></div>
-          </article>)}
+          {filteredBooks.slice(0, visible).map((book) => (
+            <article className="book-card" key={book.slug}>
+              <FavoriteButton book={book} />
+              <button className="book-click" onClick={() => setSelected(book)}><BookCover title={book.title} author={book.author} color={book.color} accent={book.accent} image={book.image} /></button>
+              <div className="book-card-info">
+                <span className="book-tag">{book.theme}</span>
+                <h3>{book.title}</h3>
+                <p>{book.author}</p>
+                <div className="book-meta"><span>{book.age}</span><span>{book.level}</span><span>{book.series}</span></div>
+                <Link className="card-detail-link" href={`/libro?slug=${book.slug}`}>Ver ficha <span>↗</span></Link>
+              </div>
+            </article>
+          ))}
         </div>
         {visible < filteredBooks.length && <div className="load-more-row"><button className="load-more-button" onClick={() => setVisible((current) => current + 12)}>Mostrar más historias</button></div>}
         {filteredBooks.length === 0 && <div className="empty-state">No encontramos libros con esos filtros. Prueba con otra edad o tema.</div>}
@@ -120,15 +163,47 @@ export default function Home() {
 
       <section className="school-section" id="escuela">
         <div className="school-stamp">para<br /><strong>la escuela</strong></div>
-        <div className="school-copy"><p className="eyebrow">Una selección que sí hace sentido</p><h2>Arma tu plan lector<br /><em>con intención.</em></h2><p>Filtra por grado, nivel de dificultad y propósito. Compara títulos y comparte tu selección con tu equipo docente.</p><a className="dark-button" href="#explorar">Explorar planes lectores <span>↗</span></a></div>
-        <div className="school-list"><div><span>01</span><strong>Elige el grado</strong><small>Preescolar · Primaria · Secundaria</small></div><div><span>02</span><strong>Encuentra el nivel</strong><small>Lecturas adecuadas para cada grupo</small></div><div><span>03</span><strong>Comparte tu selección</strong><small>Fichas y recursos para acompañar</small></div></div>
+        <div className="school-copy">
+          <p className="eyebrow">Una selección que sí hace sentido</p>
+          <h2>Arma tu plan lector<br /><em>con intención.</em></h2>
+          <p>Filtra por grado, nivel de dificultad y propósito. Compara títulos y comparte tu selección con tu equipo docente.</p>
+          <a className="dark-button" href="#explorar">Explorar planes lectores <span>↗</span></a>
+        </div>
+        <div className="school-list">
+          <div><span>01</span><strong>Elige el grado</strong><small>Preescolar · Primaria · Secundaria</small></div>
+          <div><span>02</span><strong>Encuentra el nivel</strong><small>Lecturas adecuadas para cada grupo</small></div>
+          <div><span>03</span><strong>Comparte tu selección</strong><small>Fichas y recursos para acompañar</small></div>
+        </div>
       </section>
 
-      <section className="resource-section" id="recursos"><div><p className="eyebrow">Para acompañar la lectura</p><h2>Más que un libro.</h2></div><p>Guías, booktrailers, audiolibros y recursos para que cada historia encuentre su momento.</p><a className="arrow-link" href="/recursos">Ver recursos <span>↗</span></a></section>
+      <section className="resource-section" id="recursos">
+        <div><p className="eyebrow">Para acompañar la lectura</p><h2>Más que un libro.</h2></div>
+        <p>Guías, booktrailers, audiolibros y recursos para que cada historia encuentre su momento.</p>
+        <Link className="arrow-link" href="/recursos">Ver recursos <span>↗</span></Link>
+      </section>
 
       <SiteFooter />
 
-      {selected && <div className="modal-backdrop" role="presentation" onClick={() => setSelected(null)}><section className="book-modal" role="dialog" aria-modal="true" aria-label={`Ficha de ${selected.title}`} onClick={(event) => event.stopPropagation()}><button className="modal-close" onClick={() => setSelected(null)} aria-label="Cerrar ficha">×</button><BookCover title={selected.title} author={selected.author} color={selected.color} accent={selected.accent} image={selected.image} large /><div className="modal-copy"><span className="book-tag">{selected.theme} · {selected.series}</span><h2>{selected.title}</h2><p className="modal-author">{selected.author}</p><p>{selected.note || "Consulta la ficha completa para conocer esta historia."}</p><div className="modal-meta"><span><b>Edad</b>{selected.age}</span><span><b>Nivel</b>{selected.level}</span><span><b>Formato</b>{selected.format || "Impreso"}</span></div><a className="dark-button" href={`/libro?slug=${selected.slug}`}>Ver ficha completa <span>↗</span></a></div></section></div>}
+      {selected && (
+        <div className="modal-backdrop" role="presentation" onClick={() => setSelected(null)}>
+          <section className="book-modal" role="dialog" aria-modal="true" aria-label={`Ficha de ${selected.title}`} onClick={(event) => event.stopPropagation()}>
+            <button className="modal-close" onClick={() => setSelected(null)} aria-label="Cerrar ficha">×</button>
+            <BookCover title={selected.title} author={selected.author} color={selected.color} accent={selected.accent} image={selected.image} large />
+            <div className="modal-copy">
+              <span className="book-tag">{selected.theme} · {selected.series}</span>
+              <h2>{selected.title}</h2>
+              <p className="modal-author">{selected.author}</p>
+              <p>{selected.note || "Consulta la ficha completa para conocer esta historia."}</p>
+              <div className="modal-meta">
+                <span><b>Edad</b>{selected.age}</span>
+                <span><b>Nivel</b>{selected.level}</span>
+                <span><b>Formato</b>{selected.format || "Impreso"}</span>
+              </div>
+              <Link className="dark-button" href={`/libro?slug=${selected.slug}`}>Ver ficha completa <span>↗</span></Link>
+            </div>
+          </section>
+        </div>
+      )}
     </main>
   );
 }
