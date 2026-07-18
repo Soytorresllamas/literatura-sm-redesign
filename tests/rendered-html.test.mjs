@@ -172,3 +172,23 @@ test("wishlist route follows the configured favorites visibility", async () => {
     assert.equal(new URL(response.headers.get("location"), BASE).pathname, "/seccion");
   }
 });
+
+test("reading plans page presents the three plans with catalog links", async () => {
+  const response = await render("/planes-lectores");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Conoce los planes lectores/);
+  for (const plan of ["Loran", "Trotamundos", "Cosmos"]) {
+    assert.match(html, new RegExp(plan));
+  }
+  for (const id of ["loran", "trotamundos", "cosmos"]) {
+    assert.match(html, new RegExp(`href="/seccion\\?plan=${id}"`));
+  }
+});
+
+test("catalog explorer offers the reading plan facet", async () => {
+  const response = await render("/seccion");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Plan lector/);
+});
