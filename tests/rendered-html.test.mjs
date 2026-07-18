@@ -107,12 +107,70 @@ test("server-renders the literature catalog redesign", async () => {
 });
 
 test("book detail renders extended data without commerce controls", async () => {
-  const response = await render("/libro?slug=casi-medio-ano-edicion-especial-30-aniversario");
+  const response = await render("/libro/casi-medio-ano-edicion-especial-30-aniversario-1770");
   assert.equal(response.status, 200);
   const html = await response.text();
   assert.match(html, /¡Casi medio año! Edición especial 30 aniversario/);
   assertFavoritesVisibility(html, /Guardar en mi lista|Lista de deseos/);
   assert.doesNotMatch(html, /venta en línea|Agregar al carrito|Ir al carrito|detail-price|detail-availability/);
+});
+
+test("book detail ships per-book SEO: metadata, social card and JSON-LD", async () => {
+  const response = await render("/libro/casi-medio-ano-edicion-especial-30-aniversario-1770");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /<title>¡Casi medio año! Edición especial 30 aniversario \| SM Literatura<\/title>/);
+  assert.match(html, /"@type":"Book"/);
+  assert.match(html, /property="og:image"/);
+  assert.match(html, /\/og\/libro\/casi-medio-ano-edicion-especial-30-aniversario-1770/);
+  assert.match(html, /Compartir por WhatsApp/);
+  assert.match(html, /Compartir en Facebook/);
+  assert.match(html, /Compartir en Instagram/);
+  assert.match(html, /Compartir por correo/);
+});
+
+test("old query URLs redirect permanently to the slug route", async () => {
+  const response = await render("/libro?slug=xocolatl-1763");
+  assert.equal(response.status, 308);
+  assert.equal(new URL(response.headers.get("location"), BASE).pathname, "/libro/xocolatl-1763");
+});
+
+test("unknown book slugs render the playful 404", async () => {
+  const response = await render("/libro/este-libro-no-existe");
+  assert.equal(response.status, 404);
+  const html = await response.text();
+  assert.match(html, /Este capítulo no existe/);
+});
+
+test("booktrailers page renders the theater with age rows", async () => {
+  const response = await render("/booktrailers");
+  assert.equal(response.status, 200);
+  const html = await response.text();
+  assert.match(html, /Dale play a tu/);
+  assert.match(html, /próxima lectura\./);
+  assert.match(html, /Los nuevos campos de fresas/);
+  assert.match(html, /i\.ytimg\.com/);
+  assert.match(html, /Ver ficha del libro/);
+  assert.match(html, /Reproducir el booktrailer de/);
+});
+
+test("home shows the booktrailers teaser", async () => {
+  const response = await render();
+  const html = await response.text();
+  assert.match(html, /Mira la historia/);
+  assert.match(html, /antes de leerla\./);
+  assert.match(html, /Ver todos los booktrailers/);
+  assert.match(html, /href="\/booktrailers"/);
+});
+
+test("social cards respond as images", async () => {
+  // /og/libro/[slug] compone la portada del CDN en runtime: requiere red.
+  for (const path of ["/opengraph-image", "/booktrailers/opengraph-image", "/og/libro/xocolatl-1763"]) {
+    const response = await fetch(`${BASE}${path}`);
+    assert.equal(response.status, 200, `${path} debe responder 200`);
+    assert.match(response.headers.get("content-type") ?? "", /^image\/png/, `${path} debe ser PNG`);
+    await response.arrayBuffer();
+  }
 });
 
 test("catalog retains its content and follows favorites visibility", async () => {

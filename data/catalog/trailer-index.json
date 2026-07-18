@@ -1,0 +1,317 @@
+[
+  {
+    "slug": "los-nuevos-campos-de-fresas-1280",
+    "title": "Los nuevos campos de fresas",
+    "author": "Jordi Sierra i Fabra",
+    "age": "13+",
+    "ageGroup": "12–14",
+    "novelty": true,
+    "trailer": "https://youtu.be/REMd_dvivKY?si=IGyKvtuYzY2msW6y"
+  },
+  {
+    "slug": "trio-malafama-1273",
+    "title": "Trío Malafama",
+    "author": "Verónica Murguía",
+    "age": "6+",
+    "ageGroup": "6–8",
+    "novelty": false,
+    "trailer": "https://youtu.be/TSDXz5bmAH4?si=tWwMGoFjZ9VBiYJ7"
+  },
+  {
+    "slug": "tokio-1269",
+    "title": "Tokio",
+    "author": "Caro Celis",
+    "age": "6+",
+    "ageGroup": "6–8",
+    "novelty": true,
+    "trailer": "https://youtu.be/EY56A9gpvok?si=a1cV4wcCaz9ENW7_"
+  },
+  {
+    "slug": "prismaticas-779",
+    "title": "Prismáticas",
+    "author": "Carmen Leñero",
+    "age": "9+",
+    "ageGroup": "9–11",
+    "novelty": false,
+    "trailer": "https://youtu.be/i5c6QmxFTnQ?si=iVJbW4kLziGw7vtC"
+  },
+  {
+    "slug": "el-recreo-770",
+    "title": "El recreo",
+    "author": "Javier Peñalosa Mendoza",
+    "age": "9+",
+    "ageGroup": "9–11",
+    "novelty": false,
+    "trailer": "https://youtu.be/RYxq7_MgtgY?si=X0uGLOAdrcFxWhFq"
+  },
+  {
+    "slug": "la-casa-del-dragon-y-otros-poemas-de-horror-766",
+    "title": "La casa del dragón y otros poemas de horror",
+    "author": "María Baranda",
+    "age": "12+",
+    "ageGroup": "12–14",
+    "novelty": false,
+    "trailer": "https://youtu.be/dNFFVBLdzAQ?si=NlSbzpkv85LhppAz"
+  },
+  {
+    "slug": "invasion-extraterrestre-714",
+    "title": "Invasión extraterrestre",
+    "author": "Antonio Malpica",
+    "age": "12+",
+    "ageGroup": "12–14",
+    "novelty": false,
+    "trailer": "https://youtu.be/rkiHaCFY8NI?si=HW5QakXWkhgopaed"
+  },
+  {
+    "slug": "el-secreto-mas-grande-del-siglo-702",
+    "title": "El secreto más grande del siglo",
+    "author": "Joe Wilson",
+    "age": "12+",
+    "ageGroup": "12–14",
+    "novelty": false,
+    "trailer": "https://youtu.be/llXIH2sB6w8?si=003yuG4ntgp6FFIV"
+  },
+  {
+    "slug": "el-lobo-feroz-701",
+    "title": "El lobo feroz",
+    "author": "Christian Oster",
+    "age": "12+",
+    "ageGroup": "12–14",
+    "novelty": false,
+    "trailer": "https://youtu.be/hICupLBjygI?si=JluSHulzMUXxWKvt"
+  },
+  {
+    "slug": "el-crimen-del-hombre-oceano-699",
+    "title": "El crimen del Hombre Océano",
+    "author": "David Resquenses",
+    "age": "14+",
+    "ageGroup": "12–14",
+    "novelty": true,
+    "trailer": "https://youtu.be/VS7vmBEkLyE?si=k-QWDWxx_aXUwy9N"
+  },
+  {
+    "slug": "ventana-654-698",
+    "title": "Ventana 654",
+    "author": "José Luis Zárate",
+    "age": "13+",
+    "ageGroup": "12–14",
+    "novelty": false,
+    "trailer": "https://youtu.be/7T7cI-sZfNU?si=c0EJs6BflsEz_BHx"
+  },
+  {
+    "slug": "jack-donoso-690",
+    "title": "Jack Donoso",
+    "author": "Cristián Raveau",
+    "age": "13+",
+    "ageGroup": "12–14",
+    "novelty": false,
+    "trailer": "https://youtu.be/400c7MVuhCg?si=RckFMm7xAsXoli5p"
+  },
+  {
+    "slug": "constelaciones-de-papel-675",
+    "title": "Constelaciones de papel",
+    "author": "Lourdes Laguarda",
+    "age": "14+",
+    "ageGroup": "12–14",
+    "novelty": false,
+    "trailer": "https://youtu.be/LtgA2P_3cO0?si=2AF6mzwxmoQ-aY8s"
+  },
+  {
+    "slug": "revolucion-tecnologica-un-dilema-ecologico-670",
+    "title": "Revolución tecnológica: un dilema ecológico",
+    "author": "Olinca Marino",
+    "age": "13+",
+    "ageGroup": "12–14",
+    "novelty": true,
+    "trailer": "https://youtu.be/d6QuFk9Jkrc?si=-CATBF0eLaIw1603"
+  },
+  {
+    "slug": "arcade-club-643",
+    "title": "Arcade Club",
+    "author": "Antonio Ramos Revillas",
+    "age": "12+",
+    "ageGroup": "12–14",
+    "novelty": false,
+    "trailer": "https://youtu.be/ilaMdoJM_iw?si=XeTiZpWpzcE05jTz"
+  },
+  {
+    "slug": "la-vida-en-fuera-de-juego-615",
+    "title": "La vida en fuera de juego",
+    "author": "Galder Reguera",
+    "age": "13+",
+    "ageGroup": "Bachillerato",
+    "novelty": false,
+    "trailer": "https://youtu.be/z3Ssk_uyp1E?si=gpUQ8Rb0--fmlo__"
+  },
+  {
+    "slug": "karen-matricula-56220-569",
+    "title": "Karen. Matrícula 56220",
+    "author": "Ricardo Zarate",
+    "age": "13+",
+    "ageGroup": "12–14",
+    "novelty": false,
+    "trailer": "https://youtu.be/jarGZF3pejI?si=rRFfZRU4zSbOS_es"
+  },
+  {
+    "slug": "el-complejo-de-faeton-557",
+    "title": "El complejo de Faetón",
+    "author": "Andrés Acosta",
+    "age": "13+",
+    "ageGroup": "12–14",
+    "novelty": false,
+    "trailer": "https://youtu.be/Wf0Lir_LDEg?si=BJjMOHxjnrI7lH3g"
+  },
+  {
+    "slug": "corazon-de-sandia-532",
+    "title": "Corazón de sandía",
+    "author": "Joyce Courbis",
+    "age": "0–5 Años",
+    "ageGroup": "0–5",
+    "novelty": true,
+    "trailer": "https://youtu.be/qo_O4gbyQMY?si=O-RJN168wEKxPC3t"
+  },
+  {
+    "slug": "corazon-de-melon-531",
+    "title": "Corazón de melón",
+    "author": "Joyce Courbis",
+    "age": "0–5 Años",
+    "ageGroup": "0–5",
+    "novelty": true,
+    "trailer": "https://youtu.be/drePYqJOvmU?si=Bd2Qxge5KNZrAGns"
+  },
+  {
+    "slug": "corazon-de-escarcha-530",
+    "title": "Corazón de escarcha",
+    "author": "Joyce Courbis",
+    "age": "0–5 Años",
+    "ageGroup": "0–5",
+    "novelty": true,
+    "trailer": "https://youtu.be/U2s_mIprrgY?si=B44jDl0iOaBRmV6y"
+  },
+  {
+    "slug": "cuentos-justos-para-tiempos-injustos-502",
+    "title": "Cuentos justos para tiempos injustos",
+    "author": "Jaime Alfonso Sandoval",
+    "age": "12+",
+    "ageGroup": "12–14",
+    "novelty": false,
+    "trailer": "https://youtu.be/Y1qBBcUje58?si=J1Mm6F0g-yJxuMpw"
+  },
+  {
+    "slug": "mama-los-pajaros-te-saludan-496",
+    "title": "Mamá, los pájaros te saludan",
+    "author": "Natalia Jiménez Cardoso",
+    "age": "12+",
+    "ageGroup": "12–14",
+    "novelty": true,
+    "trailer": "https://youtu.be/U2s_mIprrgY?si=PyGDF-QgCm6wLkXQ"
+  },
+  {
+    "slug": "de-como-la-tia-gala-ayudo-a-combatir-las-sombras-469",
+    "title": "De cómo la tía Gala ayudó a combatir las sombras",
+    "author": "Javier Malpica",
+    "age": "12+",
+    "ageGroup": "12–14",
+    "novelty": false,
+    "trailer": "https://youtu.be/veCEec0g_n8?si=gdJEuyiWLdiPSoup"
+  },
+  {
+    "slug": "el-misterioso-caso-de-la-desaparicion-del-pastel-de-chocolate-425",
+    "title": "El misterioso caso de la desaparición del pastel de chocolate",
+    "author": "Jordi Sierra i Fabra",
+    "age": "9+",
+    "ageGroup": "9–11",
+    "novelty": true,
+    "trailer": "https://youtu.be/GY-R16s2Dvo?si=cph8vD2g8qmey7x0"
+  },
+  {
+    "slug": "leyendas-395",
+    "title": "Leyendas",
+    "author": "Francisco Hinojosa",
+    "age": "9+",
+    "ageGroup": "9–11",
+    "novelty": false,
+    "trailer": "https://youtu.be/Bj-qnZeB76c?si=3UkVyat25xHaTfrf"
+  },
+  {
+    "slug": "insectario-estrafalario-384",
+    "title": "Insectario estrafalario",
+    "author": "Denisse Pohls",
+    "age": "9+",
+    "ageGroup": "9–11",
+    "novelty": true,
+    "trailer": "https://youtu.be/VvhkIp6VIPA?si=0hCa4coy3yOG-6yM"
+  },
+  {
+    "slug": "estrella-y-luz-383",
+    "title": "Estrella y Luz",
+    "author": "Roberto Fuentes",
+    "age": "9+",
+    "ageGroup": "9–11",
+    "novelty": false,
+    "trailer": "https://youtu.be/TnZsODnALBI?si=8MEKoA2TlGWByZck"
+  },
+  {
+    "slug": "abuelita-deja-de-flotar-por-el-cuarto-que-me-pones-nervioso-354",
+    "title": "Abuelita, deja de flotar por el cuarto, que me pones nervioso",
+    "author": "Toño Malpica",
+    "age": "9+",
+    "ageGroup": "9–11",
+    "novelty": true,
+    "trailer": "https://youtu.be/2UtJ-zF4kOI?si=-KFQYcGXhZ_QwjRJ"
+  },
+  {
+    "slug": "el-senor-caracol-344",
+    "title": "El señor caracol",
+    "author": "M. B. Brozon",
+    "age": "6+",
+    "ageGroup": "6–8",
+    "novelty": true,
+    "trailer": "https://youtu.be/gP5y9bWxfqQ?si=2gxSvcPwzM3y2toQ"
+  },
+  {
+    "slug": "renata-y-la-fabrica-de-juguetes-253",
+    "title": "Renata y la fábrica de juguetes",
+    "author": "Armando Vega-Gil",
+    "age": "7+",
+    "ageGroup": "6–8",
+    "novelty": false,
+    "trailer": "https://youtu.be/QyczTcAVyEU?si=QS44KSd0cCwaUXX4"
+  },
+  {
+    "slug": "everest-230",
+    "title": "Everest",
+    "author": "María Baranda",
+    "age": "7+",
+    "ageGroup": "6–8",
+    "novelty": false,
+    "trailer": "https://youtu.be/2h79n-SK3g0?si=yuC_nHNX7LUcv2zI"
+  },
+  {
+    "slug": "vocales-al-vuelo-192",
+    "title": "Vocales al vuelo",
+    "author": "Jorge Luján",
+    "age": "3+",
+    "ageGroup": "0–5",
+    "novelty": false,
+    "trailer": "https://youtu.be/YGw6gGme1oM?si=dD95t3SgvS0KRzOc"
+  },
+  {
+    "slug": "una-intrusa-en-mi-casa-123",
+    "title": "¡Una intrusa en mi casa!",
+    "author": "Jacob Grant",
+    "age": "5+",
+    "ageGroup": "0–5",
+    "novelty": false,
+    "trailer": "https://youtu.be/QHwp8gAqAJA?si=Pj5G9wX5N0XdvCQY"
+  },
+  {
+    "slug": "horriblemente-hermoso-119",
+    "title": "¡Horriblemente hermoso!",
+    "author": "Eva Dax",
+    "age": "5+",
+    "ageGroup": "0–5",
+    "novelty": false,
+    "trailer": "https://youtu.be/26BCg5zhaLQ?si=QmIVe-B72CaLDvHm"
+  }
+]

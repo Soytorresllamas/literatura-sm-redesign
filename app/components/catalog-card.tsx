@@ -9,7 +9,7 @@ export function CatalogCard({ book }: { book: BookRecord }) {
   return (
     <article className="book-card">
       <FavoriteButton book={book} />
-      <Link href={`/libro?slug=${book.slug}`} className="card-main-link">
+      <Link href={`/libro/${book.slug}`} className="card-main-link">
         <span className="book-click">
           <BookCover title={book.title} author={book.author} color={book.color} accent={book.accent} image={book.image} />
         </span>

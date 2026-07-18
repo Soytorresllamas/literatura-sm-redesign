@@ -33,3 +33,17 @@ test("does not redirect unrelated paths", async () => {
   assert.equal(response.status, 200);
   assert.equal(response.headers.get("location"), null);
 });
+
+// El redirect /libro?slug= → /libro/[slug] usa captura de query con nombre,
+// que unstable_getResponseFromNextConfig aún no soporta; lo cubre
+// rendered-html.test.mjs contra el servidor real.
+
+test("manda /libro sin slug al catálogo", async () => {
+  const response = await unstable_getResponseFromNextConfig({
+    url: "https://example.test/libro",
+    nextConfig,
+  });
+
+  assert.equal(response.status, 307);
+  assert.equal(new URL(response.headers.get("location")).pathname, "/seccion");
+});

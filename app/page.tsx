@@ -1,10 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { BookCover } from "./components/book-cover";
 import { ageFacets, catalogBooks, newestBooks, themeFacets, type BookRecord } from "./components/book-data";
+import { trailerEntries } from "./components/trailer-data";
 import { FavoriteButton } from "./components/favorite-button";
 import { NoveltyCarousel } from "./components/novelty-carousel";
 import { SectionHeader } from "./components/section-header";
@@ -131,7 +133,7 @@ export default function Home() {
                 <h3>{book.title}</h3>
                 <p>{book.author}</p>
                 <div className="book-meta"><span>{book.age}</span><span>{book.level}</span><span>{book.series}</span></div>
-                <Link className="card-detail-link" href={`/libro?slug=${book.slug}`}>Ver ficha <span>↗</span></Link>
+                <Link className="card-detail-link" href={`/libro/${book.slug}`}>Ver ficha <span>↗</span></Link>
               </div>
             </article>
           ))}
@@ -161,6 +163,26 @@ export default function Home() {
         <Link className="arrow-link" href="/recursos">Ver recursos <span>↗</span></Link>
       </section>
 
+      <section className="trailer-teaser" aria-label="Booktrailers">
+        <div className="trailer-teaser-copy">
+          <p className="eyebrow">Booktrailers</p>
+          <h2>Mira la historia<br /><em>antes de leerla.</em></h2>
+          <p>Videos del catálogo para elegir la siguiente lectura en familia o con tu grupo.</p>
+          <Link className="dark-button" href="/booktrailers">Ver todos los booktrailers <span>↗</span></Link>
+        </div>
+        <div className="trailer-teaser-strip">
+          {trailerEntries.slice(0, 5).map((trailer) => (
+            <Link className="trailer-teaser-card" key={trailer.slug} href="/booktrailers">
+              <span className="trailer-thumb">
+                <Image src={trailer.thumbnail} alt="" fill sizes="250px" />
+                <span className="trailer-card-play" aria-hidden="true">▶</span>
+              </span>
+              <strong>{trailer.title}</strong>
+            </Link>
+          ))}
+        </div>
+      </section>
+
       <SiteFooter />
 
       {selected && (
@@ -178,7 +200,7 @@ export default function Home() {
                 <span><b>Nivel</b>{selected.level}</span>
                 <span><b>Formato</b>{selected.format || "Impreso"}</span>
               </div>
-              <Link className="dark-button" href={`/libro?slug=${selected.slug}`}>Ver ficha completa <span>↗</span></Link>
+              <Link className="dark-button" href={`/libro/${selected.slug}`}>Ver ficha completa <span>↗</span></Link>
             </div>
           </section>
         </div>

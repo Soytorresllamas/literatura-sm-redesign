@@ -33,7 +33,7 @@ export function PlanCarousel({ books, ariaLabel }: PlanCarouselProps) {
         {books.map((book) => (
           <Link
             key={book.slug}
-            href={`/libro?slug=${book.slug}`}
+            href={`/libro/${book.slug}`}
             className="plan-carousel-item"
             aria-label={`${book.title} — ${book.author}`}
           >

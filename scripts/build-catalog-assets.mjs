@@ -154,6 +154,21 @@ if (runningAsScript) {
     links: book.links,
   })).sort((a, b) => a.slug.localeCompare(b.slug, "es"));
 
+  // Índice mínimo para la sección de booktrailers: evita cargar book-details
+  // completo en el cliente solo para listar los títulos con video.
+  const trailerBySlug = new Map(published.filter((book) => book.links?.bookTrailer).map((book) => [book.slug, book.links.bookTrailer]));
+  const trailers = catalog
+    .filter((book) => trailerBySlug.has(book.slug))
+    .map((book) => ({
+      slug: book.slug,
+      title: book.title,
+      author: book.author,
+      age: book.age,
+      ageGroup: book.ageGroup,
+      novelty: book.novelty,
+      trailer: trailerBySlug.get(book.slug),
+    }));
+
   const pricedProducts = published
     .filter((book) => (book.pricing.sale ?? book.pricing.regular) != null)
     .map((book) => ({
@@ -211,6 +226,7 @@ if (runningAsScript) {
   const outputs = new Map([
     ["catalog-index.json", `${JSON.stringify(catalog, null, 2)}\n`],
     ["book-details.json", `${JSON.stringify(details, null, 2)}\n`],
+    ["trailer-index.json", `${JSON.stringify(trailers, null, 2)}\n`],
     ["pricing-audit.json", `${JSON.stringify(pricingAudit, null, 2)}\n`],
     ["PRICING_AUDIT.md", pricingMarkdown],
   ]);
@@ -226,5 +242,5 @@ if (runningAsScript) {
     }
   }
 
-  console.log(JSON.stringify({ mode: checkOnly ? "check" : "write", catalog: catalog.length, details: details.length, pricingReady: pricingAudit.decision.readyForCommerce }, null, 2));
+  console.log(JSON.stringify({ mode: checkOnly ? "check" : "write", catalog: catalog.length, details: details.length, trailers: trailers.length, pricingReady: pricingAudit.decision.readyForCommerce }, null, 2));
 }

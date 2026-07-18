@@ -80,7 +80,7 @@ export function NoveltyCarousel({ books }: NoveltyCarouselProps) {
                 key={book.slug}
                 type="button"
                 className={`novelty-slide ${positionClass(position)}`}
-                onClick={() => (position === 0 ? router.push(`/libro?slug=${book.slug}`) : setActive(index))}
+                onClick={() => (position === 0 ? router.push(`/libro/${book.slug}`) : setActive(index))}
                 aria-label={position === 0 ? `Ver ficha de ${book.title}` : `${book.title} — ${book.author}`}
                 aria-current={position === 0 ? "true" : undefined}
                 tabIndex={position === 0 ? 0 : -1}
@@ -94,10 +94,10 @@ export function NoveltyCarousel({ books }: NoveltyCarouselProps) {
         </div>
         <div className="novelty-copy" key={current.slug} aria-live="polite">
           <span className="novelty-counter">{String(active + 1).padStart(2, "0")} / {String(books.length).padStart(2, "0")}</span>
-          <h3><Link href={`/libro?slug=${current.slug}`}>{current.title}</Link></h3>
+          <h3><Link href={`/libro/${current.slug}`}>{current.title}</Link></h3>
           <p className="novelty-author">{current.author}</p>
           <p className="novelty-note">{current.note || `${current.theme} · ${current.age}`}</p>
-          <Link className="novelty-link" href={`/libro?slug=${current.slug}`}>Ver libro →</Link>
+          <Link className="novelty-link" href={`/libro/${current.slug}`}>Ver libro →</Link>
         </div>
         <div className="novelty-controls">
           <button type="button" onClick={() => move(-1)} aria-label="Libro anterior">←</button>

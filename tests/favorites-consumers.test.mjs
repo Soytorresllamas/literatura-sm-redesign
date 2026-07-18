@@ -8,7 +8,7 @@ const paths = [
   "../app/components/section-header.tsx",
   "../app/lista/page.tsx",
   "../app/lista/wishlist-page-content.tsx",
-  "../app/libro/page.tsx",
+  "../app/libro/[slug]/page.tsx",
 ];
 
 const sources = await Promise.all(paths.map((path) => readFile(new URL(path, import.meta.url), "utf8")));

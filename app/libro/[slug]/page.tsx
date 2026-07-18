@@ -1,31 +1,78 @@
-"use client";
-
+import type { Metadata } from "next";
 import Link from "next/link";
-import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useMemo, useState } from "react";
-import { BookCover } from "../components/book-cover";
-import { getRelatedBooks } from "../components/book-data";
-import { getDetailedBookBySlug } from "../components/book-detail-data";
-import { FavoriteButton } from "../components/favorite-button";
-import { SectionHeader } from "../components/section-header";
-import { SiteFooter } from "../components/site-footer";
+import { notFound } from "next/navigation";
+import { BookCover } from "../../components/book-cover";
+import { catalogBooks, getRelatedBooks } from "../../components/book-data";
+import { findDetailedBookBySlug, type DetailedBookRecord } from "../../components/book-detail-data";
+import { FavoriteButton } from "../../components/favorite-button";
+import { SectionHeader } from "../../components/section-header";
+import { ShareMenu } from "../../components/share-menu";
+import { SiteFooter } from "../../components/site-footer";
 
-// Los enlaces de "También puede gustarte" navegan /libro → /libro en cliente,
-// sin remontar la página. useSearchParams es reactivo a esos cambios; vive en
-// un componente aparte bajo Suspense para no alterar el prerender estático.
-function BookSlugSync({ onSlug }: { onSlug: (slug: string | null) => void }) {
-  const searchParams = useSearchParams();
-  const slug = searchParams.get("slug");
-  useEffect(() => {
-    onSlug(slug);
-  }, [slug, onSlug]);
-  return null;
+type PageProps = { params: Promise<{ slug: string }> };
+
+export function generateStaticParams() {
+  return catalogBooks.map((book) => ({ slug: book.slug }));
 }
 
-export default function BookPage() {
-  const [slug, setSlug] = useState<string | null>(null);
-  const book = getDetailedBookBySlug(slug);
-  const related = useMemo(() => getRelatedBooks(book), [book]);
+// El catálogo viaja con el build: fuera de los 388 slugs prerenderizados no
+// hay libro que renderizar, y así el 404 llega con estatus real pese al
+// streaming de loading.tsx y de los metadatos.
+export const dynamicParams = false;
+
+function shareDescription(book: DetailedBookRecord) {
+  const text = book.description || book.note || "Consulta la ficha editorial de este título y descubre su propuesta de lectura.";
+  return text.length > 180 ? `${text.slice(0, 177).trimEnd()}…` : text;
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { slug } = await params;
+  const book = findDetailedBookBySlug(slug);
+  // notFound() aquí y no solo en el cuerpo: loading.tsx hace stream del shell
+  // con 200 antes de renderizar la página; los metadatos resuelven antes.
+  if (!book) notFound();
+  const description = shareDescription(book);
+  const image = { url: `/og/libro/${book.slug}`, width: 1200, height: 630, alt: `${book.title}, de ${book.author}` };
+  return {
+    title: `${book.title} | SM Literatura`,
+    description,
+    alternates: { canonical: `/libro/${book.slug}` },
+    openGraph: {
+      title: book.title,
+      description,
+      type: "book",
+      locale: "es_MX",
+      url: `/libro/${book.slug}`,
+      authors: [book.author],
+      isbn: book.isbn,
+      images: [image],
+    },
+    twitter: { card: "summary_large_image", title: book.title, description, images: [image.url] },
+  };
+}
+
+function bookJsonLd(book: DetailedBookRecord) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "Book",
+    name: book.title,
+    author: { "@type": "Person", name: book.author },
+    publisher: { "@type": "Organization", name: "Ediciones SM" },
+    inLanguage: "es",
+    ...(book.isbn ? { isbn: book.isbn } : {}),
+    ...(book.pages ? { numberOfPages: book.pages } : {}),
+    ...(book.image ? { image: book.image } : {}),
+    ...(book.genre ? { genre: book.genre } : {}),
+    ...(book.description || book.note ? { description: book.description || book.note } : {}),
+  };
+}
+
+export default async function BookPage({ params }: PageProps) {
+  const { slug } = await params;
+  const book = findDetailedBookBySlug(slug);
+  if (!book) notFound();
+
+  const related = getRelatedBooks(book);
   const resources = [
     { label: "Booktrailer", description: "Conoce la historia en video", icon: "▶", href: book.links.bookTrailer },
     { label: "Audiolibro", description: "Escucha una muestra o la edición disponible", icon: "◉", href: book.links.audiobook },
@@ -35,9 +82,7 @@ export default function BookPage() {
 
   return (
     <main>
-      <Suspense fallback={null}>
-        <BookSlugSync onSlug={setSlug} />
-      </Suspense>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(bookJsonLd(book)) }} />
       <SectionHeader />
       <div className="book-breadcrumbs">
         <Link href="/">Inicio</Link>
@@ -50,9 +95,7 @@ export default function BookPage() {
         <div className="detail-visual">
           {book.novelty && <span className="detail-label">Novedad</span>}
           <BookCover title={book.title} author={book.author} color={book.color} accent={book.accent} image={book.image} large />
-          <div className="detail-share">
-            Compartir <button aria-label="Copiar enlace" onClick={() => navigator.clipboard?.writeText(window.location.href)}>↗</button>
-          </div>
+          <ShareMenu title={`${book.title} | SM Literatura`} text={`«${book.title}», de ${book.author}. ${shareDescription(book)}`} />
         </div>
         <div className="detail-copy">
           <p className="eyebrow">{book.series} · {book.age}</p>
@@ -125,7 +168,7 @@ export default function BookPage() {
         <div className="related-books">
           {related.map((item) => (
             <div className="related-item" key={item.slug}>
-              <Link href={`/libro?slug=${item.slug}`}>
+              <Link href={`/libro/${item.slug}`}>
                 <BookCover title={item.title} author={item.author} color={item.color} accent={item.accent} image={item.image} />
               </Link>
               <strong>{item.title}</strong>

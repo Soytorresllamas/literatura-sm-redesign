@@ -11,7 +11,7 @@
     "dev": "next dev",
     "build": "next build --webpack",
     "start": "next start",
-    "test": "npm run build && node --experimental-strip-types --test tests/favorites-core.test.ts && node --test tests/*.test.mjs",
+    "test": "npm run build && node --experimental-strip-types --test tests/favorites-core.test.ts tests/share-links.test.ts tests/youtube.test.ts && node --test tests/*.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
   },
   "dependencies": {

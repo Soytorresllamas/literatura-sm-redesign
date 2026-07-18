@@ -18,7 +18,7 @@ test("route transitions provide catalog and book-detail skeletons", async () => 
   const [rootLoading, catalogLoading, bookLoading] = await Promise.all([
     source("app/loading.tsx"),
     source("app/seccion/loading.tsx"),
-    source("app/libro/loading.tsx"),
+    source("app/libro/[slug]/loading.tsx"),
   ]);
 
   assert.match(rootLoading, /PageLoadingSkeleton/);

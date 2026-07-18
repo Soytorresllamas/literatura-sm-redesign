@@ -9,6 +9,7 @@ import { FavoritesIndicator } from "./favorites-indicator";
 const NAV_LINKS = [
   { href: "/seccion", label: "Explorar libros" },
   { href: "/planes-lectores", label: "Planes lectores" },
+  { href: "/booktrailers", label: "Booktrailers" },
   { href: "/recursos", label: "Recursos" },
   { href: "/novedades", label: "Novedades" },
 ];

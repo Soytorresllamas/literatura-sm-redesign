@@ -1,5 +1,5 @@
 import sourceDetails from "../../data/catalog/book-details.json";
-import { getBookBySlug, type BookRecord } from "./book-data";
+import { findBookBySlug, getBookBySlug, type BookRecord } from "./book-data";
 
 export type BookLinks = {
   amazonEbook: string | null;
@@ -31,6 +31,13 @@ const emptyLinks: BookLinks = { amazonEbook: null, audiobook: null, bookTrailer:
 
 export function getDetailedBookBySlug(slug: string | null | undefined): DetailedBookRecord {
   const book = getBookBySlug(slug);
+  const detail = detailsBySlug.get(book.slug);
+  return { ...book, ...detail, links: detail?.links ?? emptyLinks };
+}
+
+export function findDetailedBookBySlug(slug: string | null | undefined): DetailedBookRecord | undefined {
+  const book = findBookBySlug(slug);
+  if (!book) return undefined;
   const detail = detailsBySlug.get(book.slug);
   return { ...book, ...detail, links: detail?.links ?? emptyLinks };
 }
