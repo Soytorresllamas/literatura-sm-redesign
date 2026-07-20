@@ -63,12 +63,8 @@ export default function Home() {
             <a href="#escuela">Elegir para mi grupo <span>↗</span></a>
           </div>
         </div>
-        <div className="hero-art" aria-label="Composición de libros de colores">
-          <div className="tape tape-one" />
-          <div className="hero-book hero-book-back"><span>historias<br />que dejan<br />huella</span></div>
-          <div className="hero-book hero-book-front"><span>leer<br /><strong>juntos</strong></span><small>SM literatura</small></div>
-          <div className="hero-sparkle">✦</div>
-          <div className="hero-note">Una buena historia<br /><strong>siempre encuentra</strong><br />a su lector.</div>
+        <div className="hero-art">
+          <Image src="/arbol-lectores.png" alt="Niñas y niños leen entre las ramas de un árbol de libros" width={479} height={521} priority />
         </div>
       </section>
 
